@@ -1,0 +1,1627 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Budget perso</title>
+<style>
+:root {
+  --bg: #f6f5f1; --card: #ffffff; --text: #1d1d1b; --muted: #6b6a65; --line: #e6e4dd;
+  --accent: #2f6f5e; --accent-soft: #e3efe9; --neg: #b4472f; --pos: #2f7a4a; --warn: #b7821b;
+  --bar: #2f6f5e; --bar2: #c9c4b5; --hero: #23584a; --hero-text: #ffffff; --hero-muted: rgba(255,255,255,.72);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #161614; --card: #1f1f1c; --text: #ecebe6; --muted: #9d9b93; --line: #33322d;
+    --accent: #6cc0a5; --accent-soft: #23352f; --neg: #e48a73; --pos: #79c795; --warn: #e0b45a;
+    --bar: #6cc0a5; --bar2: #4a4840; --hero: #1d3b33; --hero-text: #f3f7f5; --hero-muted: rgba(243,247,245,.68);
+  }
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+a { color: var(--accent); }
+body { margin: 0; background: var(--bg); color: var(--text);
+  font: 15px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; }
+header { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; justify-content: space-between;
+  padding: 14px 24px; border-bottom: 1px solid var(--line); background: var(--card); position: sticky; top: 0; z-index: 5; }
+.brand { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; }
+h1 { font-size: 19px; margin: 0; letter-spacing: -.01em; }
+h2 { font-size: 15px; margin: 0 0 12px; font-weight: 600; }
+.tabs { display: inline-flex; background: var(--bg); border: 1px solid var(--line); border-radius: 9px; padding: 3px; gap: 2px; }
+.tabs button { background: transparent; color: var(--muted); border: 0; border-radius: 7px; padding: 5px 14px; font-weight: 550; font-size: 14px; }
+.tabs button.on { background: var(--card); color: var(--text); box-shadow: 0 1px 2px rgba(0,0,0,.12); }
+main { max-width: 1180px; margin: 0 auto; padding: 22px 16px 60px; display: grid; gap: 18px; }
+.tab { display: grid; gap: 18px; }
+.row { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 18px; min-width: 0; }
+.toolbar { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.neg { color: var(--neg); } .pos { color: var(--pos); } .muted { color: var(--muted); }
+select, input, button { font: inherit; color: inherit; }
+select, input[type=text], input[type=search], input[type=number], input[type=date] {
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; }
+button { background: var(--accent); color: #fff; border: 0; border-radius: 8px; padding: 7px 14px; cursor: pointer; font-weight: 550; }
+@media (prefers-color-scheme: dark) { button { color: #10201b; } }
+button.ghost { background: transparent; color: var(--muted); border: 1px solid var(--line); padding: 4px 10px; font-size: 13px; font-weight: 500; }
+button.ghost:hover { color: var(--text); }
+button.danger { background: transparent; color: var(--neg); border: 1px solid var(--line); padding: 4px 10px; font-size: 13px; font-weight: 500; }
+.controls { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.amt { font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+
+/* Bandeau principal : le solde, à gauche, en premier */
+.top { display: grid; gap: 18px; grid-template-columns: minmax(300px, 1.25fr) 2fr; }
+@media (max-width: 860px) { .top { grid-template-columns: 1fr; } }
+.hero { background: var(--hero); color: var(--hero-text); border-radius: 14px; padding: 22px 24px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.hero .l { color: var(--hero-muted); font-size: 14px; }
+.hero .big { font-size: 44px; font-weight: 700; letter-spacing: -.03em; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.hero .sub { color: var(--hero-muted); font-size: 13px; }
+.hero .fc { margin-top: auto; padding-top: 14px; border-top: 1px solid rgba(255,255,255,.18); display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.hero .fc b { font-size: 20px; font-variant-numeric: tabular-nums; }
+.hero button { background: rgba(255,255,255,.16); color: var(--hero-text); align-self: flex-start; margin-top: 8px; }
+.hero a { color: var(--hero-text); }
+.kpis { display: grid; gap: 12px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.kpi .v { font-size: 24px; font-weight: 650; font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
+.kpi .l { color: var(--muted); font-size: 13px; }
+
+.cat { display: grid; grid-template-columns: minmax(110px, 1fr) 2fr auto; gap: 10px; align-items: center; padding: 5px 0; font-size: 14px; }
+.track { height: 9px; background: var(--bg); border-radius: 5px; overflow: hidden; position: relative; }
+.fill { height: 100%; background: var(--bar); border-radius: 5px; }
+.fill.over { background: var(--neg); }
+.hist { display: flex; align-items: flex-end; gap: 6px; height: 150px; padding-top: 10px; }
+.hist .m { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 0; height: 100%; justify-content: flex-end; cursor: pointer; }
+.hist .bars { display: flex; gap: 2px; align-items: flex-end; height: 120px; width: 100%; justify-content: center; }
+.hist .b { width: 42%; max-width: 18px; border-radius: 3px 3px 0 0; }
+.hist .lbl { font-size: 11px; color: var(--muted); }
+.hist .m.sel .lbl { color: var(--text); font-weight: 650; }
+.legend { display: flex; gap: 14px; font-size: 12px; color: var(--muted); }
+.legend i { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 5px; }
+.line { display: flex; justify-content: space-between; gap: 12px; padding: 7px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+.line:last-child { border-bottom: 0; }
+
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th { text-align: left; font-weight: 550; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; padding: 6px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; position: sticky; top: 0; background: var(--card); }
+th.sort { cursor: pointer; user-select: none; } th.sort:hover { color: var(--text); }
+td { padding: 7px 8px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+td select { padding: 3px 6px; font-size: 13px; max-width: 190px; }
+tfoot td { font-weight: 650; border-bottom: 0; border-top: 2px solid var(--line); }
+.tablewrap { overflow: auto; max-height: 620px; }
+.pill { font-size: 11px; padding: 1px 7px; border-radius: 10px; background: var(--accent-soft); color: var(--accent); white-space: nowrap; }
+.pill.off { background: var(--bg); color: var(--muted); }
+.pill.man { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+.pill.up { background: transparent; color: var(--warn); border: 1px solid var(--warn); }
+
+/* Solde */
+.bigcards { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+.bignum { font-size: 40px; font-weight: 700; letter-spacing: -.03em; font-variant-numeric: tabular-nums; line-height: 1.15; margin: 4px 0 2px; }
+details summary { cursor: pointer; color: var(--muted); font-size: 13px; margin-top: 8px; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.seg button { background: transparent; color: var(--muted); border: 0; border-radius: 0; padding: 5px 11px; font-size: 13px; font-weight: 500; }
+.seg button.on { background: var(--accent-soft); color: var(--accent); }
+
+/* Confirmation du salaire */
+.salary { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; justify-content: space-between;
+  background: var(--accent-soft); border: 1px solid var(--accent); border-radius: 12px; padding: 14px 18px; }
+.salary b { font-variant-numeric: tabular-nums; }
+.hero .salary { background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.3); padding: 10px 12px; margin-top: 8px; }
+.hero .salary button.ghost { color: var(--hero-text); border-color: rgba(255,255,255,.35); }
+
+/* Crédits */
+.loans { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); }
+.loan .head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.loan .rest { font-size: 26px; font-weight: 700; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.loan .bar { height: 10px; background: var(--bg); border-radius: 6px; overflow: hidden; margin: 10px 0 6px; }
+.loan .bar div { height: 100%; background: var(--bar); border-radius: 6px; }
+.loan .facts { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 14px; font-size: 13px; margin-top: 10px; }
+.loan .facts b { display: block; font-size: 14px; font-variant-numeric: tabular-nums; }
+
+/* Import, dialogues */
+#drop { border: 2px dashed var(--line); border-radius: 12px; padding: 26px; text-align: center; color: var(--muted); transition: .15s; }
+#drop.hover { border-color: var(--accent); background: var(--accent-soft); color: var(--text); }
+dialog { border: 1px solid var(--line); border-radius: 14px; background: var(--card); color: var(--text); padding: 22px; width: min(420px, calc(100vw - 32px)); }
+dialog::backdrop { background: rgba(0,0,0,.35); }
+dialog.wide { width: min(820px, calc(100vw - 32px)); max-height: calc(100vh - 48px); overflow: auto; padding: 24px 26px; }
+dialog.wide h3 { font-size: 15px; font-weight: 600; margin: 22px 0 4px; }
+dialog.wide .hint { font-size: 13px; margin: 0 0 10px; }
+.oprow { display: grid; grid-template-columns: 62px minmax(0, 1fr) auto auto; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+.oprow .lbl { min-width: 0; } .oprow .lbl b { font-weight: 550; } .oprow .lbl div { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.oprow select { font-size: 13px; padding: 3px 6px; max-width: 170px; }
+.kwchips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.kwchip { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; padding: 3px 4px 3px 10px; border-radius: 980px; background: var(--accent-soft); color: var(--accent); }
+.kwchip.def { background: color-mix(in srgb, var(--text) 8%, transparent); color: var(--text); }
+.kwchip button { border: 0; background: transparent; color: inherit; padding: 0 6px; font-size: 14px; line-height: 1; cursor: pointer; opacity: .7; box-shadow: none; }
+.kwchip button:hover { opacity: 1; }
+.bgtable tbody tr { cursor: pointer; } .bgtable tbody tr:hover td { background: color-mix(in srgb, var(--text) 4%, transparent); }
+.bgname { color: var(--text); text-decoration: none; } .bgname:hover { color: var(--accent); }
+dialog h2 { font-size: 17px; }
+dialog label { display: grid; gap: 4px; font-size: 13px; color: var(--muted); margin-bottom: 12px; }
+dialog label input, dialog label select { width: 100%; color: var(--text); font-size: 15px; }
+dialog .actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 6px; }
+#toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--text); color: var(--bg);
+  padding: 10px 16px; border-radius: 10px; font-size: 14px; opacity: 0; transition: .2s; pointer-events: none; max-width: 90vw; z-index: 20; }
+#toast.show { opacity: 1; }
+.empty { text-align: center; padding: 50px 10px; }
+.empty h2 { font-size: 20px; }
+@media (max-width: 600px) {
+  header { padding: 12px 16px; } .hero .big { font-size: 36px; } .kpi .v { font-size: 20px; }
+  .hide-sm { display: none; }
+}
+/* ===================== Style Apple ===================== */
+:root {
+  --bg: #f5f5f7; --card: #ffffff; --text: #1d1d1f; --muted: #86868b; --line: rgba(0,0,0,.08);
+  --accent: #0071e3; --accent-soft: rgba(0,113,227,.10); --neg: #e3342f; --pos: #248a3d; --warn: #c76b00;
+  --bar: #0071e3; --bar2: #d2d2d7; --hero: linear-gradient(135deg, #0071e3 0%, #0058b9 100%);
+  --hero-text: #ffffff; --hero-muted: rgba(255,255,255,.66);
+  --shadow: 0 1px 2px rgba(0,0,0,.04), 0 8px 28px rgba(0,0,0,.06);
+  --ease: cubic-bezier(.22,.9,.24,1);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #000000; --card: #1c1c1e; --text: #f5f5f7; --muted: #98989d; --line: rgba(255,255,255,.09);
+    --accent: #0a84ff; --accent-soft: rgba(10,132,255,.16); --neg: #ff453a; --pos: #30d158; --warn: #ff9f0a;
+    --bar: #0a84ff; --bar2: #3a3a3c; --hero: linear-gradient(135deg, #0a84ff 0%, #0062cc 100%);
+    --hero-muted: rgba(255,255,255,.84);
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 28px rgba(0,0,0,.35);
+  }
+}
+body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+  -webkit-font-smoothing: antialiased; letter-spacing: -.003em; }
+h1, h2, .big, .bignum, .kpi .v, .rest { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif; letter-spacing: -.022em; }
+h2 { font-weight: 650; font-size: 16px; }
+header { background: color-mix(in srgb, var(--card) 72%, transparent);
+  -webkit-backdrop-filter: saturate(180%) blur(20px); backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 1px solid var(--line); }
+.card { border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow);
+  transition: transform .35s var(--ease), box-shadow .35s var(--ease); }
+.hero { background: var(--hero); border-radius: 22px; box-shadow: var(--shadow); }
+.hero .fc { border-top-color: rgba(255,255,255,.16); }
+/* Lisibilité dans le bloc du solde : tout le texte en blanc, liens compris */
+.hero, .hero .big, .hero b, .hero a, .hero a b { color: var(--hero-text) !important; }
+#syncBtn { background: var(--hero); color: #fff; }
+.hero a { text-decoration: underline; text-decoration-color: rgba(255,255,255,.4); text-underline-offset: 3px; }
+.hero .sub, .hero .l { color: var(--hero-muted); }
+button { background: var(--accent); color: #fff; border-radius: 980px; padding: 7px 16px; font-weight: 500;
+  transition: transform .15s var(--ease), filter .2s, background .2s; }
+@media (prefers-color-scheme: dark) { button { color: #fff; } }
+button:hover { filter: brightness(1.08); }
+button:active { transform: scale(.96); }
+button.ghost { border-radius: 980px; background: transparent; }
+button.ghost:hover { background: var(--accent-soft); color: var(--accent); border-color: transparent; filter: none; }
+button.danger { border-radius: 980px; }
+button.danger:hover { background: color-mix(in srgb, var(--neg) 12%, transparent); border-color: transparent; filter: none; }
+select, input[type=text], input[type=search], input[type=number], input[type=date] {
+  border-radius: 10px; background: color-mix(in srgb, var(--text) 5%, var(--card)); border: 1px solid var(--line);
+  transition: box-shadow .2s, border-color .2s; }
+select:focus, input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+.pill { border-radius: 980px; font-weight: 500; }
+.fill, .loan .bar div { background: var(--bar); transition: width .7s var(--ease); }
+.track, .loan .bar { background: color-mix(in srgb, var(--text) 8%, transparent); }
+.hist .b { border-radius: 5px 5px 2px 2px; transition: height .7s var(--ease); }
+dialog { border-radius: 20px; box-shadow: 0 24px 80px rgba(0,0,0,.35); border: 1px solid var(--line); }
+dialog[open] { animation: dlg .32s var(--ease); }
+dialog::backdrop { background: rgba(0,0,0,.28); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+@keyframes dlg { from { opacity: 0; transform: scale(.94) translateY(8px); } to { opacity: 1; transform: none; } }
+/* Fenêtre de détail d'une catégorie : elle « sort » de la ligne cliquée (animée en JS), le fond se floute peu à peu */
+#catDialog[open] { animation: none; }
+#catDialog[open]::backdrop { animation: cdBdIn .5s var(--ease) both; }
+#catDialog.closing::backdrop { animation: cdBdOut .32s ease forwards; }
+@keyframes cdBdIn { from { opacity: 0; -webkit-backdrop-filter: blur(0); backdrop-filter: blur(0); } }
+@keyframes cdBdOut { to { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { #catDialog[open]::backdrop, #catDialog.closing::backdrop { animation: none; } }
+#toast { border-radius: 980px; padding: 10px 18px; box-shadow: var(--shadow);
+  background: color-mix(in srgb, var(--text) 88%, transparent); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);
+  transform: translateX(-50%) translateY(12px); transition: opacity .25s var(--ease), transform .35s var(--ease); }
+#toast.show { transform: translateX(-50%) translateY(0); }
+
+/* Barre d'onglets façon contrôle segmenté macOS, avec pastille qui glisse */
+.tabs { position: relative; border-radius: 10px; padding: 3px; background: color-mix(in srgb, var(--text) 7%, transparent); border: 0; }
+.tabs button { position: relative; z-index: 1; background: transparent; border-radius: 7px; color: var(--muted);
+  padding: 5px 16px; font-weight: 500; transition: color .25s; }
+.tabs button:active { transform: none; }
+.tabs button.on { background: transparent; box-shadow: none; color: var(--text); }
+#tabPill { position: absolute; top: 3px; left: 3px; height: calc(100% - 6px); border-radius: 7px; background: var(--card);
+  box-shadow: 0 1px 3px rgba(0,0,0,.12), 0 0 0 .5px rgba(0,0,0,.04);
+  transition: transform .38s var(--ease), width .38s var(--ease); }
+
+/* Animation au changement d'onglet : glissement + fondu, cartes en cascade */
+/* ---------- Barre d'onglets en verre liquide (discret) ---------- */
+:root { --spring: cubic-bezier(.34, 1.42, .52, 1); --glass: rgba(255,255,255,.495); --glass-edge: rgba(255,255,255,.675);
+  --glass-pill: rgba(255,255,255,.765); }
+@media (prefers-color-scheme: dark) {
+  :root { --glass: rgba(255,255,255,.063); --glass-edge: rgba(255,255,255,.144); --glass-pill: rgba(255,255,255,.144); }
+}
+.tabs { background: var(--glass); border: 1px solid var(--glass-edge); border-radius: 980px; padding: 4px 6px;
+  -webkit-backdrop-filter: blur(24px) saturate(180%); backdrop-filter: blur(24px) saturate(180%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.35), inset 0 -1px 0 rgba(0,0,0,.04), 0 6px 22px rgba(0,0,0,.08); }
+.tabs button { border-radius: 980px; padding: 6px 22px; }
+#tabPill { top: 4px; left: 4px; height: calc(100% - 8px); border-radius: 980px; background: var(--glass-pill);
+  -webkit-backdrop-filter: blur(12px) saturate(200%); backdrop-filter: blur(12px) saturate(200%);
+  border: 1px solid var(--glass-edge);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.55), inset 0 -1px 1px rgba(0,0,0,.05), 0 2px 10px rgba(0,0,0,.12);
+  will-change: transform, width;
+  /* Arrivée : glisse longue et douce, sans à-coup */
+  transition: transform .7s cubic-bezier(.22, 1, .36, 1), width .7s cubic-bezier(.22, 1, .36, 1), scale .7s cubic-bezier(.22, 1, .36, 1); }
+/* Reflet qui ondule dans le verre */
+#tabPill::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background: radial-gradient(120% 90% at 30% 0%, rgba(255,255,255,.45), transparent 55%),
+              radial-gradient(80% 60% at 80% 120%, rgba(255,255,255,.12), transparent 60%);
+  opacity: .55; transition: opacity .5s; }
+/* Départ : la goutte s'étire vers le nouvel onglet en s'aplatissant un peu */
+#tabPill.stretch { transition: transform .26s cubic-bezier(.4, 0, .2, 1), width .26s cubic-bezier(.4, 0, .2, 1), scale .26s cubic-bezier(.4, 0, .2, 1);
+  scale: 1 .9; }
+#tabPill.stretch::after { opacity: .9; }
+/* Pendant le déplacement, la pastille s'étire légèrement comme une goutte */
+
+
+/* ---------- Changement d'onglet : glissement prononcé ---------- */
+.tab.enter { animation: tabIn .6s var(--ease) both; }
+@keyframes tabIn { from { opacity: 0; transform: translateX(var(--from, 48px)); filter: blur(6px); }
+  to { opacity: 1; transform: none; filter: none; } }
+
+/* ---------- Affichage des pages : comme le déverrouillage d'un iPhone ----------
+   Les blocs arrivent en se « posant » : légèrement agrandis et flous, puis nets, en cascade depuis le centre. */
+.tab.enter .card, .tab.enter .hero, .tab.enter > .toolbar, .tab.enter > p {
+  animation: unlock .75s var(--spring) both; animation-delay: calc(var(--i, 0) * 40ms + 40ms); }
+@keyframes unlock { 0% { opacity: 0; transform: scale(1.14); filter: blur(14px); }
+  55% { opacity: 1; filter: blur(0); } 100% { opacity: 1; transform: none; filter: none; } }
+/* Premier affichage de l'appli : tout l'écran fait le zoom arrière du déverrouillage */
+body.unlocking main { animation: unlockScreen .9s var(--ease) both; }
+@keyframes unlockScreen { from { opacity: 0; transform: scale(1.06); filter: blur(18px); } to { opacity: 1; transform: none; filter: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .tab.enter, .tab.enter *, dialog[open], body.unlocking main, #tabPill.moving { animation: none !important; }
+  #tabPill, .fill, .hist .b { transition: none; }
+}
+
+/* ===================== Essai : fond de fenêtre en verre (retour arrière : app/sauvegarde-avant-verre) ===================== */
+html, body { background: var(--bg) !important; }
+body { min-height: 100vh; }
+.card { background: color-mix(in srgb, var(--card) 72%, transparent);
+  -webkit-backdrop-filter: blur(30px) saturate(170%); backdrop-filter: blur(30px) saturate(170%);
+  border-color: color-mix(in srgb, var(--text) 10%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08), var(--shadow); }
+header { background: color-mix(in srgb, var(--card) 40%, transparent) !important; }
+th { background: transparent; }
+
+/* Fenêtres « Mes banques » et vérification */
+dialog input[type=password] { width: 100%; font-size: 15px; color: var(--text); padding: 6px 10px; border-radius: 10px;
+  background: color-mix(in srgb, var(--text) 5%, var(--card)); border: 1px solid var(--line); }
+dialog input[type=password]:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+#bankDialog { width: min(480px, calc(100vw - 32px)); }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <h1>Budget perso</h1>
+    <nav class="tabs" id="tabs" hidden>
+      <span id="tabPill" aria-hidden="true"></span>
+      <button data-tab="dash">Tableau de bord</button>
+      <button data-tab="solde">Solde</button>
+      <button data-tab="budget">Budget</button>
+      <button data-tab="subs">Mensualités</button>
+      <button data-tab="credits">Crédits</button>
+    </nav>
+  </div>
+  <div class="controls">
+    <span id="syncState" class="muted" style="font-size:13px"></span>
+    <button id="syncBtn" hidden>Synchroniser</button>
+    <button id="bankBtn" class="ghost" hidden style="padding:7px 12px;font-size:14px">Mes banques</button>
+    <button id="importBtn" class="ghost" style="padding:7px 12px;font-size:14px">Importer un relevé</button>
+    <input type="file" id="file" accept=".csv,.ofx,.qfx,.txt" multiple hidden>
+  </div>
+</header>
+
+<main>
+  <section class="card" id="importCard" hidden>
+    <h2>Importer des opérations</h2>
+    <div class="controls" style="margin-bottom:12px">
+      <label>Compte : <input type="text" id="account" value="Compte principal" list="accountsList"></label>
+      <datalist id="accountsList"></datalist>
+    </div>
+    <div id="drop">Glisse ici un export CSV ou OFX de ta banque, ou <a href="#" id="pick">choisis un fichier</a>.<br>
+      <small>Les doublons sont ignorés : tu peux réimporter un relevé qui chevauche le précédent.</small></div>
+  </section>
+
+  <section class="card empty" id="emptyState" hidden>
+    <h2>Aucune opération pour l'instant</h2>
+    <p class="muted">Connecte ta banque (bouton « Connecter ma banque »), ou exporte tes opérations depuis l'espace client<br>de ta banque (format CSV ou OFX) et clique sur « Importer un relevé ».</p>
+  </section>
+
+  <!-- ===================== TABLEAU DE BORD ===================== -->
+  <div class="tab" id="tab-dash" hidden>
+    <div class="top">
+      <section class="hero" id="hero"></section>
+      <div style="display:grid;gap:12px;align-content:start">
+        <div class="toolbar"><h2 style="margin:0">Ce mois-ci</h2><select id="month" aria-label="Mois"></select></div>
+        <section class="kpis">
+          <div class="card kpi"><div class="l" id="kExpL">Dépenses</div><div class="v neg" id="kExp"></div></div>
+          <div class="card kpi"><div class="l">Rentrées</div><div class="v pos" id="kInc"></div></div>
+          <div class="card kpi" style="grid-column:1/-1"><div class="l">Abonnements et charges fixes / mois</div><div class="v" id="kSubs"></div><div class="l" id="kSubsDet" style="font-size:12px;margin-top:2px"></div></div>
+        </section>
+      </div>
+    </div>
+
+    <div class="row">
+      <section class="card">
+        <div class="toolbar" style="align-items:baseline">
+          <h2>Évolution</h2>
+          <div class="legend"><span><i style="background:var(--bar)"></i>Dépenses</span><span><i style="background:var(--bar2)"></i>Rentrées</span></div>
+        </div>
+        <div class="hist" id="hist"></div>
+      </section>
+      <section class="card">
+        <h2>Dépenses par catégorie</h2>
+        <div id="cats"></div>
+      </section>
+    </div>
+
+    <div class="row">
+      <section class="card">
+        <div class="toolbar" style="align-items:baseline"><h2>Prochains prélèvements</h2><a href="#" data-goto="subs" style="font-size:13px">Tous mes abonnements</a></div>
+        <div id="upcoming"></div>
+      </section>
+      <section class="card">
+        <h2>Où part l'argent ce mois-ci</h2>
+        <div id="merchants"></div>
+      </section>
+    </div>
+  </div>
+
+  <!-- ===================== SOLDE ===================== -->
+  <div class="tab" id="tab-solde" hidden>
+    <div id="salaryBanner"></div>
+    <div class="bigcards">
+      <section class="card">
+        <div class="muted">Solde actuel</div>
+        <div class="bignum" id="sNow"></div>
+        <div class="muted" id="sNowComing" style="font-size:13px;margin-bottom:8px"></div>
+        <div id="sAccounts"></div>
+        <div class="controls" style="margin-top:10px"><button class="ghost" id="setBalanceBtn">Corriger un solde</button></div>
+      </section>
+      <section class="card">
+        <div class="muted" id="sFcLabel">Solde prévu à la fin du mois</div>
+        <div class="bignum" id="sFc"></div>
+        <div id="sFcLines"></div>
+        <details id="sFcDetails"><summary>Voir le détail des prélèvements et rentrées à venir</summary><div id="sFcItems" style="margin-top:8px"></div></details>
+        <div class="controls" style="margin-top:12px;font-size:13px">
+          <span class="muted">Dépenses du quotidien :</span>
+          <select id="estMode" aria-label="Estimation des dépenses du quotidien">
+            <option value="aucune">non comptées</option><option value="habitudes">selon mes habitudes</option><option value="budget">selon un budget mensuel…</option>
+          </select>
+        </div>
+        <div class="controls" style="margin-top:8px;font-size:13px">
+          <span class="muted">Mon mois commence le</span>
+          <input type="number" id="cycleDay" min="1" max="28" step="1" style="width:64px" aria-label="Jour de début du mois">
+        </div>
+      </section>
+    </div>
+
+    <section class="card">
+      <div class="toolbar" style="margin-bottom:6px">
+        <div><h2 style="margin:0">Opérations à venir annoncées par ta banque</h2>
+          <div class="muted" style="font-size:13px" id="comingInfo"></div></div>
+      </div>
+      <div id="comingList"></div>
+    </section>
+
+    <section class="card">
+      <div class="toolbar" style="margin-bottom:6px">
+        <h2 style="margin:0">Dépenses ponctuelles prévues</h2>
+        <button class="ghost" id="addPlannedBtn">+ Prévoir une dépense</button>
+      </div>
+      <div id="plannedList"></div>
+    </section>
+
+    <section class="card">
+      <div class="toolbar" style="margin-bottom:12px">
+        <h2 style="margin:0">Mes dépenses</h2>
+        <div class="controls">
+          <div class="seg" id="txKind">
+            <button data-k="depenses" class="on">Dépenses</button><button data-k="revenus">Rentrées</button><button data-k="">Tout</button>
+          </div>
+          <select id="txPeriod" aria-label="Période"></select>
+          <select id="txCat" aria-label="Catégorie"><option value="">Toutes catégories</option></select>
+          <select id="txAcc" aria-label="Compte" class="hide-sm" style="max-width:220px"><option value="">Tous les comptes</option></select>
+          <input type="search" id="txSearch" placeholder="Rechercher…">
+        </div>
+      </div>
+      <div class="tablewrap"><table>
+        <thead><tr>
+          <th class="sort" data-s="date">Date</th><th class="sort" data-s="label">Libellé</th>
+          <th class="sort" data-s="category">Catégorie</th><th class="hide-sm">Compte</th>
+          <th class="sort amt" data-s="amount">Montant</th></tr></thead>
+        <tbody id="txs"></tbody>
+        <tfoot><tr><td colspan="3" id="txCount"></td><td class="hide-sm"></td><td class="amt" id="txTotal"></td></tr></tfoot>
+      </table></div>
+    </section>
+  </div>
+
+  <!-- ===================== CRÉDITS ===================== -->
+  <div class="tab" id="tab-credits" hidden>
+    <div class="toolbar">
+      <div>
+        <div class="muted" style="font-size:13px">Reste à rembourser</div>
+        <div style="font-size:28px;font-weight:700;letter-spacing:-.02em"><span id="loanTotal"></span> <span class="muted" style="font-size:15px;font-weight:500" id="loanMonthly"></span></div>
+      </div>
+      <button id="addLoanBtn">+ Ajouter un crédit</button>
+    </div>
+    <div class="loans" id="loansList"></div>
+    <section class="card">
+      <div class="toolbar" style="margin-bottom:6px">
+        <div><h2 style="margin:0">On me doit</h2><div class="muted" style="font-size:13px" id="debtTotal"></div></div>
+        <button class="ghost" id="addDebtBtn">+ Ajouter</button>
+      </div>
+      <div id="debtList"></div>
+    </section>
+    <section class="card" id="loanCandidates" hidden>
+      <h2>Prélèvements qui ressemblent à des crédits</h2>
+      <p class="muted" style="font-size:13px;margin-top:-6px">Ajoute le crédit correspondant avec le montant total et ce qui est déjà remboursé : le suivi se fera ensuite tout seul.</p>
+      <div id="loanCandList"></div>
+    </section>
+  </div>
+
+  <!-- ===================== BUDGET ===================== -->
+  <div class="tab" id="tab-budget" hidden>
+    <div class="toolbar">
+      <div style="display:flex;gap:28px;flex-wrap:wrap">
+        <div><div class="muted" style="font-size:13px">Budget du mois</div>
+          <div style="font-size:28px;font-weight:700;letter-spacing:-.02em" id="bgTotal"></div></div>
+        <div><div class="muted" style="font-size:13px">Dépensé</div>
+          <div style="font-size:28px;font-weight:700;letter-spacing:-.02em" class="neg" id="bgSpent"></div></div>
+        <div><div class="muted" style="font-size:13px">Reste</div>
+          <div style="font-size:28px;font-weight:700;letter-spacing:-.02em" id="bgLeft"></div></div>
+      </div>
+      <div class="controls"><select id="bgMonth" aria-label="Mois"></select><button id="addBudgetBtn">+ Ajouter une catégorie</button></div>
+    </div>
+    <section class="card">
+      <div class="muted" style="font-size:13px;margin-bottom:6px" id="bgPeriod"></div>
+      <div style="overflow-x:auto"><table class="bgtable">
+        <thead><tr><th>Catégorie</th><th style="text-align:right">Budget</th><th style="text-align:right">Dépensé</th>
+          <th style="text-align:right">Reste</th><th style="width:26%"></th><th></th></tr></thead>
+        <tbody id="bgRows"></tbody>
+        <tfoot id="bgFoot"></tfoot>
+      </table></div>
+    </section>
+    <section class="card" id="bgOtherCard" hidden>
+      <h2>Dépenses hors budget</h2>
+      <p class="muted" style="font-size:13px;margin-top:-6px">Dépenses du mois dans des catégories absentes du tableau.</p>
+      <div id="bgOther"></div>
+    </section>
+  </div>
+
+  <!-- ===================== ABONNEMENTS ===================== -->
+  <div class="tab" id="tab-subs" hidden>
+    <div class="toolbar">
+      <div style="display:flex;gap:28px;flex-wrap:wrap">
+        <div><div class="muted" style="font-size:13px">Abonnements</div>
+          <div style="font-size:28px;font-weight:700;letter-spacing:-.02em"><span id="subMonthly"></span> <span class="muted" style="font-size:15px;font-weight:500">/ mois</span></div></div>
+        <div><div class="muted" style="font-size:13px">Charges fixes</div>
+          <div style="font-size:28px;font-weight:700;letter-spacing:-.02em"><span id="chgMonthly"></span> <span class="muted" style="font-size:15px;font-weight:500">/ mois</span></div></div>
+      </div>
+      <button id="addSubBtn">+ Ajouter</button>
+    </div>
+    <div id="subSections" style="display:grid;gap:18px"></div>
+    <p class="muted" style="font-size:13px;margin:0">Ta liste d’abonnements est la référence. Chaque ligne est confrontée à tes opérations : un abonnement
+      sans paiement depuis plus de 2 mois passe automatiquement en « arrêté ».</p>
+  </div>
+</main>
+
+<dialog id="catDialog" class="wide">
+  <div class="toolbar" style="align-items:flex-start">
+    <div><h2 id="cdTitle" style="margin:0;font-size:22px"></h2><div class="muted" style="font-size:13px;margin-top:2px" id="cdPeriod"></div></div>
+    <div class="controls"><button class="ghost" id="cdEdit">Nom et budget…</button><button id="cdClose">Fermer</button></div>
+  </div>
+  <div style="display:flex;gap:28px;flex-wrap:wrap;margin:14px 0 8px" id="cdStats"></div>
+  <div class="track" id="cdTrack" style="height:8px"><div class="fill" id="cdFill"></div></div>
+
+  <h3>Ses dépenses ce mois-ci</h3>
+  <p class="muted hint">Une dépense qui n'a rien à faire ici ? Change sa catégorie avec le menu de la ligne.</p>
+  <div id="cdOps"></div>
+
+  <h3>Classement automatique</h3>
+  <p class="muted hint">Toute dépense dont le libellé contient un de ces mots-clés est rangée ici, celles déjà passées comme les prochaines.
+    En bleu : tes mots-clés ; en gris : ceux prévus par le logiciel.</p>
+  <div class="kwchips" id="cdKw"></div>
+  <form id="cdKwForm" style="display:flex;gap:8px;flex-wrap:wrap">
+    <input type="text" name="kw" placeholder="ex. CARREFOUR, BOULANGERIE, UBER EATS" style="flex:1;min-width:220px">
+    <button type="submit">+ Ajouter le mot-clé</button>
+  </form>
+
+  <h3>Ajouter des dépenses à cette catégorie</h3>
+  <p class="muted hint">Dépenses du mois rangées ailleurs (celles « À classer » d'abord). Cherche un marchand pour remonter plus loin.</p>
+  <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-bottom:6px">
+    <input type="search" id="cdSearch" placeholder="Chercher dans toutes tes dépenses (ex. Lidl)…" style="flex:1;min-width:220px">
+    <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);margin:0;cursor:pointer">
+      <input type="checkbox" id="cdAlways" checked style="width:auto;margin:0"> Faire pareil automatiquement pour ce marchand</label>
+  </div>
+  <div id="cdCand"></div>
+</dialog>
+
+<dialog id="budgetDialog">
+  <form method="dialog" id="budgetForm">
+    <h2 id="budgetTitle">Nouvelle catégorie</h2>
+    <input type="hidden" name="old_name">
+    <label>Nom de la catégorie<input type="text" name="name" required placeholder="ex. Vacances" list="bgCatList"></label>
+    <datalist id="bgCatList"></datalist>
+    <label>Budget par mois (€)<input type="number" name="limit" step="0.01" min="0" placeholder="vide = pas de budget">
+      <span style="font-size:12px" id="budgetHint"></span></label>
+    <div class="actions"><button type="button" class="ghost" id="budgetCancel">Annuler</button><button type="submit" id="budgetSubmit">Ajouter</button></div>
+  </form>
+</dialog>
+
+<dialog id="debtDialog">
+  <form method="dialog" id="debtForm">
+    <h2 id="debtTitle">Quelqu'un te doit de l'argent</h2>
+    <input type="hidden" name="id">
+    <label>Qui<input type="text" name="person" required placeholder="ex. Alex Martin"></label>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <label>Montant total dû (€)<input type="number" name="total" step="0.01" min="0.01" required></label>
+      <label>Déjà rendu (€)<input type="number" name="repaid" step="0.01" min="0" value="0"></label>
+    </div>
+    <label>Ses virements contiennent (facultatif)<input type="text" name="keyword" placeholder="ex. MARTIN ALEX">
+      <span style="font-size:12px">Les virements reçus de cette personne seront déduits automatiquement (sauf ses versements réguliers de ta liste).</span></label>
+    <label>Note<input type="text" name="note" placeholder="facultatif"></label>
+    <div class="actions"><button type="button" class="ghost" id="debtCancel">Annuler</button><button type="submit" id="debtSubmit">Ajouter</button></div>
+  </form>
+</dialog>
+
+<dialog id="loanDialog">
+  <form method="dialog" id="loanForm">
+    <h2 id="loanTitle">Ajouter un crédit</h2>
+    <input type="hidden" name="id">
+    <label>Nom du crédit<input type="text" name="name" required placeholder="ex. Prêt personnel Crédit Agricole"></label>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <label>Montant total à rembourser (€)<input type="number" name="total_due" step="0.01" min="0.01" placeholder="à préciser"></label>
+      <label>Déjà remboursé à ce jour (€)<input type="number" name="repaid" step="0.01" min="0" value="0" required></label>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <label>Mensualité (€)<input type="number" name="monthly_payment" step="0.01" min="0"></label>
+      <label>Jour du prélèvement<input type="number" name="payment_day" min="1" max="31" step="1" placeholder="ex. 28"></label>
+    </div>
+    <label>Prélèvement associé (facultatif)<input type="text" name="merchant" list="loanMerchants" placeholder="ex. CRCAM">
+      <span style="font-size:12px">Les prochains prélèvements de ce nom seront déduits automatiquement du reste à rembourser.</span></label>
+    <datalist id="loanMerchants"></datalist>
+    <div class="actions"><button type="button" class="ghost" id="loanCancel">Annuler</button><button type="submit" id="loanSubmit">Ajouter</button></div>
+  </form>
+</dialog>
+
+<dialog id="subDialog">
+  <form method="dialog" id="subForm">
+    <h2 id="subTitle">Ajouter un abonnement</h2>
+    <input type="hidden" name="id">
+    <label>Nom<input type="text" name="name" required placeholder="ex. Netflix"></label>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <label>Montant (€)<input type="number" name="amount" step="0.01" min="0.01" required placeholder="13,49"></label>
+      <label>Fréquence<select name="frequency">
+        <option value="mensuel">Mensuel</option><option value="4 semaines">Toutes les 4 semaines</option>
+        <option value="annuel">Annuel</option><option value="trimestriel">Trimestriel</option>
+        <option value="hebdomadaire">Hebdomadaire</option></select></label>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <label>Prochain prélèvement<input type="date" name="next_date"></label>
+      <label>Type<select name="kind"><option value="abonnement">Abonnement</option><option value="charge">Charge fixe</option><option value="revenu">Rentrée régulière</option></select></label>
+    </div>
+    <label>Catégorie<select name="category" id="subCat"></select></label>
+    <label>Le libellé bancaire contient<input type="text" name="keyword" placeholder="ex. NETFLIX">
+      <span style="font-size:12px">Sert à retrouver les paiements dans tes opérations (plusieurs mots : séparés par +).</span></label>
+    <div class="actions"><button type="button" class="ghost" value="cancel" id="subCancel">Annuler</button><button type="submit" id="subSubmit">Ajouter</button></div>
+  </form>
+</dialog>
+
+<dialog id="plannedDialog">
+  <form method="dialog" id="plannedForm">
+    <h2 id="plannedTitle">Prévoir une dépense</h2>
+    <input type="hidden" name="id">
+    <label>Pour quoi / pour qui<input type="text" name="name" required placeholder="ex. Remboursement à Sam"></label>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <label>Montant (€)<input type="number" name="amount" step="0.01" min="0.01" required></label>
+      <label>Date prévue<input type="date" name="date" required></label>
+    </div>
+    <label>Sens<select name="sens"><option value="depense">Dépense</option><option value="rentree">Rentrée</option></select></label>
+    <label>Le libellé bancaire contiendra<input type="text" name="keyword" placeholder="ex. SAM DUPONT">
+      <span style="font-size:12px">Pour reconnaître le paiement quand il apparaîtra sur ton compte.</span></label>
+    <div class="actions"><button type="button" class="ghost" id="plannedCancel">Annuler</button><button type="submit" id="plannedSubmit">Ajouter</button></div>
+  </form>
+</dialog>
+
+<dialog id="bankDialog">
+  <form method="dialog" id="bankForm">
+    <h2>Mes banques</h2>
+    <p class="muted" style="font-size:13px;margin-top:-6px">Ton ordinateur se connecte directement au site de ta banque, sans intermédiaire.
+      Les identifiants sont rangés dans le trousseau sécurisé de ton système : jamais écrits dans un fichier ni envoyés ailleurs.</p>
+    <div id="bankList" style="margin-bottom:10px"></div>
+    <p id="bankWarn" class="neg" style="font-size:13px" hidden></p>
+    <h2 style="font-size:15px;margin-top:6px">Connecter une banque</h2>
+    <label>Banque<select name="module" id="bankModule"></select></label>
+    <div id="bankFields"></div>
+    <div class="actions"><button type="button" class="ghost" id="bankCancel">Fermer</button><button type="submit">Connecter</button></div>
+  </form>
+</dialog>
+
+<dialog id="questionDialog">
+  <form method="dialog" id="questionForm">
+    <h2 id="questionTitle">Vérification</h2>
+    <p class="muted" style="font-size:13px;margin-top:-6px">Ta banque demande une vérification. La réponse est transmise directement à ta banque.</p>
+    <div id="questionFields"></div>
+    <div class="actions"><button type="button" class="ghost" id="questionCancel">Annuler</button><button type="submit">Valider</button></div>
+  </form>
+</dialog>
+
+<dialog id="balDialog">
+  <form method="dialog" id="balForm">
+    <h2>Indiquer un solde</h2>
+    <p class="muted" style="font-size:13px;margin-top:-6px">Le solde affiché sur ton relevé ou ton appli bancaire aujourd'hui. Les opérations importées ensuite seront ajoutées automatiquement.</p>
+    <label>Compte<input type="text" name="account" list="accountsList" required value="Compte principal"></label>
+    <label>Solde actuel (€)<input type="number" name="amount" step="0.01" required></label>
+    <div class="actions"><button type="button" class="ghost" id="balCancel">Annuler</button><button type="submit">Enregistrer</button></div>
+  </form>
+</dialog>
+
+<div id="toast"></div>
+
+<script>
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const eur = v => (v == null ? "—" : new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(v));
+const signed = v => (v > 0 ? "+" : "") + eur(v);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const iso = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+const frDate = s => new Date(s + "T12:00:00").toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
+let CYCLE_DAY = 1;
+const cycleBounds = m => { const [y, mo] = m.split("-").map(Number);
+  return CYCLE_DAY > 1 ? [new Date(y, mo - 2, CYCLE_DAY), new Date(y, mo - 1, CYCLE_DAY)] : [new Date(y, mo - 1, 1), new Date(y, mo, 1)]; };
+const cycleOf = d => { const x = CYCLE_DAY > 1 && d.getDate() >= CYCLE_DAY ? new Date(d.getFullYear(), d.getMonth() + 1, 1) : d;
+  return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, "0")}`; };
+const shiftCycle = (m, k) => { const [y, mo] = m.split("-").map(Number); const x = new Date(y, mo - 1 + k, 1);
+  return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, "0")}`; };
+const monthName = m => {
+  if (CYCLE_DAY > 1) { const [s, e] = cycleBounds(m); const last = new Date(e.getTime() - 864e5);
+    const f = d => d.toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
+    return `${f(s)} → ${f(last)}${last.getFullYear() !== new Date().getFullYear() ? " " + last.getFullYear() : ""}`; }
+  const [y, mo] = m.split("-"); return new Date(y, mo - 1, 1).toLocaleDateString("fr-FR", { month: "long", year: "numeric" }); };
+const shortMonth = m => { const [y, mo] = m.split("-"); return new Date(y, mo - 1, 1).toLocaleDateString("fr-FR", { month: "short" }).replace(".", ""); };
+const FREQ = { hebdomadaire: "semaine", mensuel: "mois", trimestriel: "trimestre", annuel: "an" };
+const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
+
+let CATS = [], MONTHS = [], ACCOUNTS = [], current = null, tab = store.get("tab") || "dash";
+let BAL = null, FC = null;
+
+async function api(path, opts) {
+  const r = await fetch("/api/" + path, opts);
+  const data = await r.json();
+  if (!r.ok) throw new Error(data.erreur || "Erreur");
+  return data;
+}
+const post = (path, body) => api(path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+function toast(msg) { const t = $("#toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), 3500); }
+
+/* ---------- Banque (appli Mac) ---------- */
+const bridge = () => (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.budget) ? "mac"
+  : (window.pywebview && window.pywebview.api ? "py" : null);
+/* Fonctions de l'appli (banques, identifiants, codes de vérification) : mêmes noms des deux côtés */
+const bankApi = () => {
+  if (bridge() === "py") return window.pywebview.api;
+  const h = bridge() === "mac" && window.webkit.messageHandlers.budgetApi;
+  return h ? new Proxy({}, { get: (_, fn) => (...args) => h.postMessage({ fn, args }) }) : null;
+};
+const toApp = msg => {
+  if (msg === "connect" && bankApi()) return openBankDialog();
+  const b = bridge();
+  if (b === "mac") window.webkit.messageHandlers.budget.postMessage(msg);
+  else if (b === "py") window.pywebview.api.message(msg);
+};
+const ago = s => { const m = Math.round((Date.now() - new Date(s)) / 60000);
+  return m < 1 ? "à l'instant" : m < 60 ? `il y a ${m} min` : m < 1440 ? `il y a ${Math.round(m / 60)} h` : `le ${new Date(s).toLocaleDateString("fr-FR")}`; };
+let bankConnected = false, syncing = false;
+function paintSync(text) {
+  $("#syncBtn").hidden = !bridge();
+  $("#bankBtn").hidden = !bankApi();
+  $("#syncBtn").disabled = syncing;
+  $("#syncBtn").style.opacity = syncing ? .6 : 1;
+  $("#syncBtn").textContent = syncing ? "Synchronisation…" : bankConnected ? "Synchroniser" : "Connecter ma banque";
+  if (text !== undefined) $("#syncState").textContent = text;
+}
+async function showBankStatus() {
+  try { const b = await api("bank-status"); if (b.derniere_synchro) paintSync("Synchronisé " + ago(b.derniere_synchro)); } catch (e) {}
+}
+window.bankEvent = e => {
+  if (e.event === "state") { bankConnected = e.connected; syncing = e.syncing; paintSync(); }
+  else if (e.event === "status") { syncing = true; bankConnected = true; paintSync(e.message); }
+  else if (e.event === "done") { syncing = false; paintSync("Synchronisé à l'instant"); toast(e.nouvelles ? `${e.nouvelles} nouvelle(s) opération(s) importée(s)` : "Tout est à jour"); current = null; init(); }
+  else if (e.event === "error") { syncing = false; paintSync("Synchronisation échouée"); if (bridge() === "py" && e.message) alert(e.message); }
+  else if (e.event === "need_connect") { openBankDialog(); }
+  else if (e.event === "question") { openQuestionDialog(e); }
+  else if (e.event === "validation") { paintSync(`${e.banque || "Ta banque"} : valide dans son appli…`); toast(e.message); }
+  else if (e.event === "update_installed") {
+    if (confirm(`Une mise à jour de Budget perso (version ${e.version}) vient d'être installée.${e.notes ? "\n\n" + e.notes : ""}\n\nRedémarrer maintenant pour en profiter ?`)) window.pywebview.api.restart();
+    else toast("La mise à jour s'appliquera au prochain lancement");
+  }
+  else if (e.event === "finished") { syncing = false; toApp("state"); }
+  else if (e.event === "disconnected") { bankConnected = false; paintSync(""); toApp("state"); }
+};
+
+/* ---------- Onglets ---------- */
+const TAB_ORDER = ["dash", "solde", "budget", "subs", "credits"];
+function moveTabPill() {
+  const on = $("#tabs button.on"), pill = $("#tabPill");
+  if (!on || !pill) return;
+  // Mouvement « liquide » : le bord avant file vers le nouvel onglet, le bord arrière suit en retard,
+  // la pastille s'allonge un peu puis se reforme, en un seul geste continu.
+  const W = pill.parentElement.clientWidth, L = on.offsetLeft, R = W - (on.offsetLeft + on.offsetWidth);
+  const reduced = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const ease = "cubic-bezier(.3, 1, .4, 1)";
+  if (pill._L === undefined || reduced) pill.style.transition = "none";
+  else if (L > pill._L) pill.style.transition = `left .62s ${ease}, right .42s ${ease}`;   // vers la droite
+  else if (L < pill._L) pill.style.transition = `left .42s ${ease}, right .62s ${ease}`;   // vers la gauche
+  pill.style.transform = "none"; pill.style.width = "auto";
+  pill.style.left = L + "px"; pill.style.right = R + "px";
+  pill._L = L;
+}
+window.addEventListener("resize", moveTabPill);
+window.showTab = t => {
+  const prev = tab;
+  tab = TAB_ORDER.includes(t) ? t : "dash";
+  store.set("tab", tab);
+  $$("#tabs button").forEach(b => b.classList.toggle("on", b.dataset.tab === tab));
+  TAB_ORDER.forEach(k => $("#tab-" + k).hidden = k !== tab || !MONTHS.length);
+  moveTabPill();
+  // Animation d'entrée, dans le sens du déplacement (onglet à droite -> arrive de la droite)
+  const el = $("#tab-" + tab);
+  el.style.setProperty("--from", (prev === tab ? 0 : TAB_ORDER.indexOf(tab) > TAB_ORDER.indexOf(prev) ? 48 : -48) + "px");
+  // Ordre de la cascade : les blocs proches du centre d'abord, puis vers les bords
+  const blocks = [...el.querySelectorAll(".card, .hero, :scope > .toolbar, :scope > p")];
+  const mid = blocks.length / 2;
+  blocks.forEach((b, i) => b.style.setProperty("--i", Math.round(Math.abs(i - mid))));
+  el.classList.remove("enter"); void el.offsetWidth; el.classList.add("enter");
+  // Filet de sécurité : si l'animation est suspendue (fenêtre en arrière-plan), le contenu s'affiche quand même
+  clearTimeout(el._anim); el._anim = setTimeout(() => el.classList.remove("enter"), 1600);
+  if (MONTHS.length) renderTab();
+};
+$$("#tabs button").forEach(b => b.onclick = () => showTab(b.dataset.tab));
+document.addEventListener("click", e => { const g = e.target.closest("[data-goto]"); if (g) { e.preventDefault(); showTab(g.dataset.goto); } });
+
+async function init() {
+  let SETTINGS;
+  [CATS, ACCOUNTS, MONTHS, SETTINGS] = await Promise.all([api("categories"), api("accounts"), api("months"), api("settings")]);
+  CYCLE_DAY = parseInt(SETTINGS.jour_debut_mois, 10) || 1;
+  $("#cycleDay").value = CYCLE_DAY;
+  $("#accountsList").innerHTML = ACCOUNTS.map(a => `<option value="${esc(a.name)}">`).join("");
+  const catOpts = CATS.map(c => `<option>${esc(c)}</option>`).join("");
+  $("#txCat").innerHTML = '<option value="">Toutes catégories</option>' + catOpts;
+  $("#subCat").innerHTML = catOpts;
+  $("#subCat").value = "Abonnements & streaming";
+  $("#txAcc").innerHTML = '<option value="">Tous les comptes</option>' + ACCOUNTS.map(a => `<option value="${esc(a.name)}">${esc(a.name)}</option>`).join("");
+  paintSync(); toApp("state"); showBankStatus();
+  const has = MONTHS.length > 0;
+  $("#emptyState").hidden = has; $("#tabs").hidden = !has;
+  if (!has) { $("#importCard").hidden = false; ["dash", "solde", "subs", "credits"].forEach(k => $("#tab-" + k).hidden = true); return; }
+  if (!current || !MONTHS.includes(current)) current = MONTHS[0];
+  $("#month").innerHTML = MONTHS.map(m => `<option value="${m}" ${m === current ? "selected" : ""}>${monthName(m)}</option>`).join("");
+  fillPeriods();
+  showTab(tab);
+}
+
+async function loadBalance() { [BAL, FC, DEBTS] = await Promise.all([api("balance"), api("forecast"), api("debts")]); }
+
+function renderTab() {
+  const run = { dash: renderDash, solde: renderSolde, budget: renderBudget, subs: renderSubs, credits: renderLoans }[tab];
+  run().catch(e => toast(e.message));
+}
+
+/* ---------- Salaire à confirmer ---------- */
+function salaryHTML() {
+  if (!BAL || !BAL.salaires_a_confirmer.length) return "";
+  return BAL.salaires_a_confirmer.map(p => `<div class="salary">
+    <span>Salaire reçu ? <b>${eur(p.amount)}</b> de ${esc(p.merchant)} le ${frDate(p.date)}<br>
+      <span style="font-size:12px;opacity:.8">Il n'est pas compté dans ton solde tant que tu ne l'as pas confirmé.</span></span>
+    <span class="controls"><button data-salary="${p.id}">Oui, je l'ai reçu</button>
+      <button class="ghost" data-notsalary="${p.id}">Ce n'est pas mon salaire</button></span></div>`).join("");
+}
+function bindSalary(root) {
+  root.querySelectorAll("[data-salary]").forEach(b => b.onclick = async () => {
+    await post("salary/confirm", { id: +b.dataset.salary, received: true });
+    toast("Salaire confirmé : ton solde est à jour"); renderTab();
+  });
+  root.querySelectorAll("[data-notsalary]").forEach(b => b.onclick = async () => {
+    await post("salary/confirm", { id: +b.dataset.notsalary, received: false });
+    toast("Opération reclassée en « Revenus »"); renderTab();
+  });
+}
+
+/* Petite ligne sous le solde : solde une fois passées les opérations à venir annoncées par la banque */
+function comingLine() {
+  if (!BAL || BAL.solde_avec_operations_a_venir == null) return "";
+  if (!BAL.operations_a_venir) return "Avec les opérations à venir : rien d'annoncé par ta banque";
+  const n = BAL.operations_a_venir;
+  return `Avec les opérations à venir : <b>${eur(BAL.solde_avec_operations_a_venir)}</b> `
+    + `<span style="opacity:.8">(${n} opération${n > 1 ? "s" : ""}, ${BAL.total_operations_a_venir > 0 ? "+" : ""}${eur(BAL.total_operations_a_venir)})</span>`;
+}
+
+/* ---------- Bandeau du solde (tableau de bord) ---------- */
+function heroHTML() {
+  if (!BAL.connu) return `<div class="l">Solde actuel</div><div class="big" style="font-size:30px">Non renseigné</div>
+    <div class="sub">Connecte ta banque ou indique ton solde pour voir où tu en es et ta fin de mois.</div>
+    <button id="heroSet">Indiquer mon solde</button>`;
+  const courants = BAL.comptes.filter(a => a.type === "courant" && a.solde != null);
+  const upd = courants.map(a => a.solde_releve_le).sort().pop();
+  const fc = FC.solde_prevu_fin_de_mois;
+  return `<div class="l">Solde actuel</div>
+    <div class="big">${eur(BAL.solde_courant)}</div>
+    <div class="sub">${comingLine()}</div>
+    <div class="sub">${courants.length > 1 ? courants.length + " comptes courants" : esc(courants[0].compte.replace("Crédit Agricole · ", ""))}${upd ? " · relevé " + ago(upd) : ""}</div>
+    ${salaryHTML()}
+    ${BAL.epargne != null ? `<div class="sub">Épargne : ${eur(BAL.epargne)}</div>` : ""}
+    ${DEBTS && DEBTS.total_du > 0 ? `<div class="sub"><a href="#" data-goto="credits" style="text-decoration:none">On te doit : ${eur(DEBTS.total_du)}</a></div>` : ""}
+    <div class="fc"><span class="l">Prévu le ${frDate(FC.fin_du_mois)}${FC.jour_debut_mois > 1 ? ", salaire compris" : ""}${FC.veille ? `<br><span style="font-size:12px">la veille (${frDate(FC.veille.date)}) : ${eur(FC.veille.solde)}</span>` : ""}${FC.total_salaire_attendu || FC.salaire_recu_a_confirmer ? "<br><span style='font-size:12px'>avec le salaire : " + eur(FC.solde_prevu_avec_salaire) + "</span>" : ""}</span><a href="#" data-goto="solde" style="text-decoration:none"><b>${eur(fc)}</b></a></div>`;
+}
+
+/* ---------- Tableau de bord ---------- */
+async function renderDash() {
+  const [sum, hist, subs, merch] = await Promise.all([
+    api("summary?month=" + current), api("history?months=12"), api("subscriptions"), api("merchants?month=" + current), loadBalance()]);
+  $("#hero").innerHTML = heroHTML();
+  const hs = $("#heroSet"); if (hs) hs.onclick = openBalanceDialog;
+  bindSalary($("#hero"));
+  $("#kExp").textContent = eur(sum.depuis_salaire ? sum.depuis_salaire.depenses : sum.depenses);
+  $("#kExpL").textContent = sum.depuis_salaire ? `Dépenses depuis le salaire du ${frDate(sum.depuis_salaire.date)}` : "Dépenses";
+  $("#kInc").textContent = eur(sum.revenus);
+  const active = subs.filter(s => s.statut === "actif" && s.type === "abonnement");
+  const totAbos = active.reduce((a, s) => a + s.cout_mensuel, 0);
+  const totCharges = subs.filter(s => s.statut === "actif" && s.type === "charge").reduce((a, s) => a + s.cout_mensuel, 0);
+  $("#kSubs").textContent = eur(totAbos + totCharges);
+  $("#kSubsDet").textContent = `dont abonnements ${eur(totAbos)} · charges fixes ${eur(totCharges)}`;
+
+  const max = Math.max(1, ...hist.flatMap(h => [h.depenses, h.revenus]));
+  $("#hist").innerHTML = hist.map(h => `<div class="m ${h.mois === current ? "sel" : ""}" data-m="${h.mois}" title="${monthName(h.mois)} — dépenses ${eur(h.depenses)}, rentrées ${eur(h.revenus)}">
+      <div class="bars"><div class="b" style="height:${(h.depenses / max) * 100}%;background:var(--bar)"></div><div class="b" style="height:${(h.revenus / max) * 100}%;background:var(--bar2)"></div></div>
+      <div class="lbl">${shortMonth(h.mois)}</div></div>`).join("");
+  $$(".hist .m").forEach(el => el.onclick = () => { current = el.dataset.m; $("#month").value = current; renderDash(); });
+
+  const cmax = Math.max(1, ...sum.par_categorie.map(c => Math.max(c.depense, c.budget || 0)));
+  $("#cats").innerHTML = sum.par_categorie.length ? sum.par_categorie.map(c => {
+    const over = c.budget && c.depense > c.budget;
+    return `<div class="cat"><span>${esc(c.categorie)}</span>
+      <div class="track" title="${c.budget ? "Budget : " + eur(c.budget) : "Cliquer sur le montant pour fixer un budget"}">
+        <div class="fill ${over ? "over" : ""}" style="width:${(c.depense / cmax) * 100}%"></div>
+        ${c.budget ? `<div style="position:absolute;top:-2px;bottom:-2px;left:${(c.budget / cmax) * 100}%;width:2px;background:var(--text);opacity:.5"></div>` : ""}
+      </div>
+      <a href="#" class="amt ${over ? "neg" : ""}" data-cat="${esc(c.categorie)}" data-budget="${c.budget || ""}" style="color:inherit;text-decoration:none">${eur(c.depense)}${c.budget ? ` <small class="muted">/ ${eur(c.budget)}</small>` : ""}</a></div>`;
+  }).join("") : '<p class="muted">Aucune dépense ce mois-ci.</p>';
+  $$("#cats a").forEach(a => a.onclick = async e => {
+    e.preventDefault();
+    const v = prompt(`Budget mensuel pour « ${a.dataset.cat} » (vide pour supprimer) :`, a.dataset.budget);
+    if (v === null) return;
+    await post("budget", { category: a.dataset.cat, limit: v.trim() ? parseFloat(v.replace(",", ".")) : null });
+    renderDash();
+  });
+
+  const up = FC.prelevements_a_venir.slice(0, 8);
+  $("#upcoming").innerHTML = up.length ? up.map(x => `<div class="line"><span>${esc(x.nom)} <span class="muted" style="font-size:12px">· ${frDate(x.date)}${x.credit ? " · crédit" : x.type === "ponctuel" ? " · ponctuel" : x.type === "banque" ? " · annoncé par la banque" : ""}${x.en_retard ? " (en attente)" : ""}</span></span><span class="amt">−${eur(x.montant)}</span></div>`).join("")
+    + [...FC.revenus_attendus, ...FC.salaire_attendu.map(x => ({ ...x, sal: 1 }))].map(x => `<div class="line"><span>${esc(x.nom)} <span class="muted" style="font-size:12px">· ${frDate(x.date)}${x.sal ? " · salaire, date variable, compté à son arrivée" : ""}</span></span><span class="amt pos">+${eur(x.montant)}</span></div>`).join("")
+    : '<p class="muted">Rien de prévu d\'ici la fin du mois.</p>';
+
+  const mmax = Math.max(1, ...merch.map(m => m.total));
+  $("#merchants").innerHTML = merch.slice(0, 8).map(m => `<div class="cat"><span>${esc(m.marchand)}</span>
+    <div class="track"><div class="fill" style="width:${(m.total / mmax) * 100}%;opacity:.7"></div></div>
+    <span class="amt">${eur(m.total)} <small class="muted">×${m.operations}</small></span></div>`).join("") || '<p class="muted">—</p>';
+}
+
+/* ---------- Solde ---------- */
+async function renderSolde() {
+  await loadBalance();
+  $("#salaryBanner").innerHTML = salaryHTML();
+  $("#salaryBanner").hidden = !BAL.salaires_a_confirmer.length;
+  bindSalary($("#salaryBanner"));
+  $("#sNow").textContent = BAL.connu ? eur(BAL.solde_courant) : "Non renseigné";
+  $("#sNow").className = "bignum " + (BAL.connu && BAL.solde_courant < 0 ? "neg" : "");
+  $("#sNowComing").innerHTML = BAL.connu ? comingLine() : "";
+  $("#sAccounts").innerHTML = BAL.comptes.filter(a => a.solde != null).map(a => `<div class="line">
+      <span>${esc(a.compte.replace("Crédit Agricole · ", ""))} <span class="pill ${a.type === "courant" ? "" : "off"}">${{ courant: "courant", epargne: "épargne", carte: "carte" }[a.type] || esc(a.type)}</span></span>
+      <span class="amt">${eur(a.solde)}</span></div>`).join("")
+    || '<p class="muted" style="font-size:14px">Connecte ta banque ou indique ton solde.</p>';
+  $("#setBalanceBtn").textContent = BAL.connu ? "Corriger un solde" : "Indiquer mon solde";
+
+  $("#estMode").value = FC.mode_estimation;
+  $("#sFcLabel").textContent = `Solde prévu le ${new Date(FC.fin_du_mois + "T12:00:00").toLocaleDateString("fr-FR", { day: "numeric", month: "long" })}${FC.jour_debut_mois > 1 ? " au soir (fin de ton mois, salaire compris)" : ""}`;
+  const f = FC.solde_prevu_fin_de_mois;
+  $("#sFc").textContent = f == null ? "—" : eur(f);
+  $("#sFc").className = "bignum " + (f != null && f < 0 ? "neg" : "pos");
+  $("#sFcLines").innerHTML = f == null ? '<p class="muted" style="font-size:14px">Indique ton solde actuel pour calculer ta fin de mois.</p>' : `
+    <div class="line"><span>Solde actuel</span><span class="amt">${eur(FC.solde_actuel)}</span></div>
+    <div class="line"><span>Prélèvements et virements à venir <span class="muted">(${FC.prelevements_a_venir.length})</span></span><span class="amt neg">−${eur(FC.total_prelevements_a_venir)}</span></div>
+    <div class="line"><span>Rentrées attendues <span class="muted">(${FC.revenus_attendus.length})</span></span><span class="amt pos">+${eur(FC.total_revenus_attendus)}</span></div>
+    ${FC.mode_estimation === "aucune"
+      ? `<div class="line muted"><span>Dépenses du quotidien <span style="font-size:12px">· non comptées</span></span><span class="amt">—</span></div>`
+      : `<div class="line"><span>Dépenses du quotidien <span class="muted" style="font-size:12px">· ${FC.mode_estimation === "budget" ? "budget de " + eur(FC.budget_quotidien_mensuel) + "/mois" : "selon tes habitudes (" + eur(FC.depenses_courantes_mensuelles_habituelles) + "/mois)"}, ${eur(FC.depense_courante_par_jour)}/jour × ${FC.jours_restants} j</span></span><span class="amt neg">−${eur(FC.depenses_courantes_estimees)}</span></div>`}
+    ${FC.veille ? `<div class="line"><span>La veille, le ${frDate(FC.veille.date)} <span class="muted" style="font-size:12px">· avant ton salaire${FC.veille.solde < 0 ? ", découvert possible" : ""}</span></span><span class="amt ${FC.veille.solde < 0 ? "neg" : ""}">${eur(FC.veille.solde)}</span></div>` : ""}
+    ${FC.total_salaire_attendu || FC.salaire_recu_a_confirmer ? `
+    <div class="line muted"><span>Salaire attendu <span style="font-size:12px">· autour du 25, la date varie</span>
+      <span style="font-size:12px">· compté dès qu'il apparaît sur ton compte</span></span>
+      <span class="amt">(+${eur(FC.total_salaire_attendu + FC.salaire_recu_a_confirmer)})</span></div>
+    <div class="line"><span><b>Avec le salaire</b></span><span class="amt ${FC.solde_prevu_avec_salaire < 0 ? "neg" : "pos"}"><b>${eur(FC.solde_prevu_avec_salaire)}</b></span></div>` : ""}`;
+  const items = [...FC.prelevements_a_venir.map(x => ({ ...x, s: -1 })), ...FC.revenus_attendus.map(x => ({ ...x, s: 1 })),
+    ...FC.salaire_attendu.map(x => ({ ...x, s: 1, nom: x.nom + " (salaire, date variable, compté à son arrivée)" }))].sort((a, b) => a.date.localeCompare(b.date));
+  $("#sFcDetails").hidden = !items.length || f == null;
+  $("#sFcItems").innerHTML = items.map(x => `<div class="line"><span>${frDate(x.date)} · ${esc(x.nom)}</span><span class="amt ${x.s > 0 ? "pos" : ""}">${x.s > 0 ? "+" : "−"}${eur(x.montant)}</span></div>`).join("");
+  await Promise.all([renderPlanned(), renderComing()]);
+  await loadTxs();
+}
+
+async function renderComing() {
+  const C = (await api("coming")).sort((a, b) => b.date.localeCompare(a.date) || b.id - a.id);  // plus récent d'abord
+  const total = C.reduce((a, c) => a + c.montant, 0);
+  $("#comingInfo").textContent = C.length
+    ? `${C.length} opération${C.length > 1 ? "s" : ""} · ${eur(total)} · lues à la synchro ${ago(C[0].recupere_le)} · comptées dans le prévisionnel`
+    : "";
+  $("#comingList").innerHTML = C.length ? C.map(c => `<div class="line"><span>${frDate(c.date)} · <b>${esc(c.marchand)}</b>
+      <div class="muted" style="font-size:12px">${esc(c.libelle)}</div></span>
+      <span class="amt ${c.montant > 0 ? "pos" : ""}">${c.montant > 0 ? "+" : ""}${eur(c.montant)}</span></div>`).join("")
+    : `<p class="muted" style="font-size:14px;margin:4px 0">${bridge() ? "Rien d'annoncé pour l'instant. La liste se met à jour à chaque synchronisation." : "Disponible avec la synchronisation bancaire de l'appli."}</p>`;
+}
+
+let PLANNED = [];
+async function renderPlanned() {
+  PLANNED = await api("planned");
+  const rows = PLANNED.filter(p => p.statut === "prevu" || (p.paye_le && (Date.now() - new Date(p.paye_le)) < 30 * 864e5));
+  $("#plannedList").innerHTML = rows.length ? rows.map(p => `<div class="line" style="${p.statut === "paye" ? "opacity:.6" : ""}">
+      <span>${frDate(p.date)} · <b>${esc(p.nom)}</b>
+        ${p.statut === "paye" ? `<span class="pill">payé le ${frDate(p.paye_le)}</span>` : '<span class="pill off">prévu</span>'}
+        ${p.note ? `<div class="muted" style="font-size:12px">${esc(p.note)}</div>` : ""}</span>
+      <span class="controls" style="flex-wrap:nowrap"><span class="amt ${p.sens === "rentree" ? "pos" : ""}">${p.sens === "rentree" ? "+" : "−"}${eur(p.montant)}</span>
+        <button class="ghost" data-pedit="${PLANNED.indexOf(p)}">Modifier</button><button class="danger" data-pdel="${PLANNED.indexOf(p)}">Supprimer</button></span></div>`).join("")
+    : '<p class="muted" style="font-size:14px;margin:4px 0">Rien de prévu. Ajoute ici un remboursement, un achat ou une rentrée exceptionnelle à venir.</p>';
+  $$("[data-pedit]").forEach(b => b.onclick = () => openPlannedDialog(PLANNED[+b.dataset.pedit]));
+  $$("[data-pdel]").forEach(b => b.onclick = async () => {
+    const p = PLANNED[+b.dataset.pdel];
+    if (!confirm(`Supprimer « ${p.nom} » ?`)) return;
+    await post("planned/delete", { id: p.id }); renderSolde();
+  });
+}
+function openPlannedDialog(p) {
+  const f = $("#plannedForm"); f.reset();
+  $("#plannedTitle").textContent = p ? `Modifier « ${p.nom} »` : "Prévoir une dépense";
+  $("#plannedSubmit").textContent = p ? "Enregistrer" : "Ajouter";
+  f.id.value = p ? p.id : "";
+  if (p) { f.name.value = p.nom; f.amount.value = p.montant; f.date.value = p.date; f.sens.value = p.sens; f.keyword.value = p.mot_cle || ""; }
+  else { const d = new Date(); d.setDate(d.getDate() + 7); f.date.value = iso(d); }
+  $("#plannedDialog").showModal(); f.name.focus();
+}
+$("#addPlannedBtn").onclick = () => openPlannedDialog(null);
+$("#plannedCancel").onclick = () => $("#plannedDialog").close();
+$("#plannedForm").onsubmit = async e => {
+  e.preventDefault();
+  const f = e.target;
+  try {
+    await post("planned/save", { id: f.id.value ? +f.id.value : null, name: f.name.value, date: f.date.value,
+      amount: parseFloat(String(f.amount.value).replace(",", ".")), sens: f.sens.value, keyword: f.keyword.value || f.name.value });
+    $("#plannedDialog").close(); toast("Enregistré"); renderSolde();
+  } catch (err) { toast(err.message); }
+};
+$("#setBalanceBtn").onclick = () => openBalanceDialog();
+$("#cycleDay").onchange = async e => {
+  try { await post("settings", { key: "jour_debut_mois", value: e.target.value }); current = null; toast("Début du mois enregistré"); init(); }
+  catch (err) { toast(err.message); e.target.value = CYCLE_DAY; }
+};
+$("#estMode").onchange = async e => {
+  const mode = e.target.value;
+  if (mode === "budget") {
+    const v = prompt("Budget mensuel pour les dépenses du quotidien (€) :", FC ? FC.budget_quotidien_mensuel : 800);
+    if (v === null || !v.trim()) { e.target.value = FC ? FC.mode_estimation : "aucune"; return; }
+    await post("settings", { key: "budget_quotidien_mensuel", value: parseFloat(v.replace(",", ".")) });
+  }
+  await post("settings", { key: "estimation_depenses", value: mode });
+  renderSolde();
+};
+
+function fillPeriods() {
+  const now = new Date();
+  const opts = [["cur", "Ce mois-ci"], ["prev", "Mois dernier"], ["3m", "3 derniers mois"], ["12m", "12 derniers mois"], ["all", "Tout l'historique"]];
+  const sel = $("#txPeriod").value || "cur";
+  $("#txPeriod").innerHTML = opts.map(([v, l]) => `<option value="${v}">${l}</option>`).join("")
+    + '<option disabled>──────</option>' + MONTHS.map(m => `<option value="m:${m}">${monthName(m)}</option>`).join("");
+  $("#txPeriod").value = sel;
+}
+function periodRange() {
+  const v = $("#txPeriod").value, cur = cycleOf(new Date());
+  const span = (from, to) => [iso(cycleBounds(from)[0]), iso(cycleBounds(to)[1])];
+  if (v === "cur") return span(cur, cur);
+  if (v === "prev") return span(shiftCycle(cur, -1), shiftCycle(cur, -1));
+  if (v === "3m") return span(shiftCycle(cur, -2), cur);
+  if (v === "12m") return span(shiftCycle(cur, -11), cur);
+  if (v.startsWith("m:")) return span(v.slice(2), v.slice(2));
+  return [null, null];
+}
+let TXS = [], txSort = { k: "date", d: -1 }, txKind = "depenses";
+async function loadTxs() {
+  const [s, e] = periodRange();
+  const p = new URLSearchParams();
+  if (s) p.set("start", s); if (e) p.set("end", e);
+  if (txKind) p.set("kind", txKind);
+  if ($("#txCat").value) p.set("category", $("#txCat").value);
+  if ($("#txAcc").value) p.set("account", $("#txAcc").value);
+  if ($("#txSearch").value) p.set("search", $("#txSearch").value);
+  TXS = await api("transactions?" + p);
+  paintTxs();
+}
+function paintTxs() {
+  const k = txSort.k, d = txSort.d;
+  const rows = [...TXS].sort((a, b) => {
+    const x = a[k], y = b[k];
+    return (typeof x === "number" ? x - y : String(x).localeCompare(String(y), "fr")) * d || (b.id - a.id);
+  });
+  $$("th.sort").forEach(th => th.textContent = th.textContent.replace(/ [↑↓]$/, "") + (th.dataset.s === k ? (d > 0 ? " ↑" : " ↓") : ""));
+  $("#txs").innerHTML = rows.map(t => `<tr>
+    <td style="white-space:nowrap">${new Date(t.date + "T12:00:00").toLocaleDateString("fr-FR")}</td>
+    <td>${esc(t.label)}<div class="muted" style="font-size:12px">${esc(t.merchant)}</div></td>
+    <td><select data-id="${t.id}" data-merchant="${esc(t.merchant)}">${CATS.map(c => `<option ${c === t.category ? "selected" : ""}>${esc(c)}</option>`).join("")}<option value="__new">+ Nouvelle catégorie…</option></select></td>
+    <td class="muted hide-sm" style="font-size:13px;white-space:nowrap">${esc(t.account.replace("Crédit Agricole · ", ""))}</td>
+    <td class="amt ${t.amount < 0 ? "" : "pos"}">${eur(t.amount)}</td></tr>`).join("") || '<tr><td colspan="5" class="muted">Aucune opération sur cette période.</td></tr>';
+  const total = TXS.reduce((a, t) => a + t.amount, 0);
+  $("#txCount").textContent = `${TXS.length} opération${TXS.length > 1 ? "s" : ""}`;
+  $("#txTotal").textContent = eur(total);
+  $("#txTotal").className = "amt " + (total < 0 ? "neg" : "pos");
+  $$("#txs select").forEach(s => s.onchange = async () => {
+    let cat = s.value;
+    if (cat === "__new") { cat = prompt("Nom de la nouvelle catégorie :"); if (!cat) { paintTxs(); return; } CATS = [...new Set([...CATS, cat])].sort(); }
+    const all = confirm(`Classer aussi toutes les opérations « ${s.dataset.merchant} » (passées et futures) en « ${cat} » ?\n\nOK = oui pour toutes · Annuler = seulement celle-ci`);
+    const r = await post("category", { id: +s.dataset.id, category: cat, apply_to_merchant: all, create_rule: all });
+    toast(`${r.modifiees} opération(s) classée(s) en « ${cat} »`);
+    loadTxs();
+  });
+}
+$$("th.sort").forEach(th => th.onclick = () => { txSort = { k: th.dataset.s, d: txSort.k === th.dataset.s ? -txSort.d : (th.dataset.s === "date" || th.dataset.s === "amount" ? -1 : 1) }; paintTxs(); });
+$$("#txKind button").forEach(b => b.onclick = () => { txKind = b.dataset.k; $$("#txKind button").forEach(x => x.classList.toggle("on", x === b)); loadTxs(); });
+["#txPeriod", "#txCat", "#txAcc"].forEach(id => $(id).onchange = loadTxs);
+let st; $("#txSearch").oninput = () => { clearTimeout(st); st = setTimeout(loadTxs, 250); };
+
+/* ---------- Abonnements ---------- */
+let SUBS = [];
+const freqLabel = s => s.frequence === "mensuel" ? (s.jour ? `le ${s.jour}` : "par mois")
+  : s.frequence === "4 semaines" ? "toutes les 4 sem." : "par " + (FREQ[s.frequence] || s.frequence);
+function subRow(s) {
+  const i = SUBS.indexOf(s);
+  const off = s.statut !== "actif";
+  const tags = [];
+  if (s.statut === "arrete") tags.push(`<span class="pill off" title="Aucun paiement depuis plus de 2 mois">arrêté</span>`);
+  if (s.statut === "resilie") tags.push(`<span class="pill off">résilié${s.resilie_le ? " le " + frDate(s.resilie_le) : ""}</span>`);
+  if (s.alerte) tags.push(`<span class="pill up">${esc(s.alerte)}</span>`);
+  if (s.statut === "actif" && s.dernier_montant != null && Math.abs(s.dernier_montant - s.montant) > 0.009)
+    tags.push(`<span class="pill up" title="Montant du dernier paiement constaté">dernier : ${eur(s.dernier_montant)}</span>`);
+  if (s.statut === "actif" && !s.paiements_vus) tags.push('<span class="pill off">pas encore vu sur le compte</span>');
+  const actions = `<span class="controls" style="justify-content:flex-end;flex-wrap:nowrap">
+      <button class="ghost" data-edit="${i}">Modifier</button>
+      ${s.statut === "resilie" ? `<button class="ghost" data-react="${i}">Réactiver</button>`
+        : s.type !== "revenu" ? `<button class="ghost" data-cancel="${i}">Résilier</button>` : ""}
+      <button class="danger" data-del="${i}">Supprimer</button></span>`;
+  return `<tr style="${off ? "opacity:.6" : ""}">
+    <td><b>${esc(s.nom)}</b> ${tags.join(" ")}${s.note ? `<div class="muted" style="font-size:12px">${esc(s.note)}</div>` : ""}</td>
+    <td style="white-space:nowrap">${freqLabel(s)}</td>
+    <td class="amt">${s.sens === "rentree" ? "+" : ""}${eur(s.montant)}</td>
+    <td class="hide-sm muted" style="white-space:nowrap;font-size:13px">${s.dernier_paiement ? frDate(s.dernier_paiement) : "—"}</td>
+    <td style="white-space:nowrap">${s.prochain_prevu ? frDate(s.prochain_prevu) + (s.en_attente ? ' <span class="muted" style="font-size:12px">(en attente)</span>' : "") : "—"}</td>
+    <td class="amt">${actions}</td></tr>`;
+}
+function subTable(title, rows, total) {
+  if (!rows.length) return "";
+  return `<section class="card" style="padding:12px 14px">
+    <div class="toolbar" style="margin:2px 4px 6px"><h2 style="margin:0">${title}</h2>${total != null ? `<span class="muted" style="font-size:13px">${total}</span>` : ""}</div>
+    <div class="tablewrap" style="max-height:none"><table>
+      <thead><tr><th>Nom</th><th>Quand</th><th class="amt">Montant</th><th class="hide-sm">Dernier paiement</th><th>Prochain</th><th></th></tr></thead>
+      <tbody>${rows.map(subRow).join("")}</tbody></table></div></section>`;
+}
+async function renderSubs() {
+  const [subs, sugg] = await Promise.all([api("subscriptions"), api("subscription-suggestions")]);
+  SUBS = subs;
+  const act = t => subs.filter(s => s.statut === "actif" && s.type === t);
+  const sum = l => l.reduce((a, s) => a + s.cout_mensuel, 0);
+  $("#subMonthly").textContent = eur(sum(act("abonnement")));
+  $("#chgMonthly").textContent = eur(sum(act("charge")));
+  const stopped = subs.filter(s => s.statut !== "actif");
+  $("#subSections").innerHTML =
+    subTable("Abonnements", act("abonnement"), `${eur(sum(act("abonnement")) * 12)} / an`)
+    + subTable("Charges fixes", act("charge"), `${eur(sum(act("charge")) * 12)} / an`)
+    + subTable("Rentrées régulières", act("revenu"), `+${eur(sum(act("revenu")))} / mois`)
+    + subTable("Arrêtés et résiliés", stopped, "ne sont plus comptés")
+    + (sugg.length ? `<section class="card"><h2>Paiements réguliers absents de ta liste</h2>
+        ${sugg.map((g, i) => `<div class="line"><span>${esc(g.marchand)} <span class="muted" style="font-size:12px">· ${eur(g.montant)} · dernier le ${frDate(g.dernier_paiement)}</span></span>
+          <span class="controls" style="flex-wrap:nowrap"><button class="ghost" data-sugadd="${i}">Ajouter</button><button class="danger" data-sugign="${i}">Ignorer</button></span></div>`).join("")}</section>` : "")
+    || '<section class="card muted" style="text-align:center;padding:30px">Aucun abonnement.</section>';
+  $$("[data-edit]").forEach(b => b.onclick = () => openSubDialog(SUBS[+b.dataset.edit]));
+  $$("[data-cancel]").forEach(b => b.onclick = async () => {
+    const s = SUBS[+b.dataset.cancel];
+    if (!confirm(`Marquer « ${s.nom} » comme résilié aujourd'hui ?\n\nIl ne sera plus compté. Si un prélèvement arrive quand même, l'appli te préviendra.`)) return;
+    await post("subscription/state", { id: s.id, status: "resilie" }); toast(`« ${s.nom} » résilié`); renderSubs();
+  });
+  $$("[data-react]").forEach(b => b.onclick = async () => {
+    const s = SUBS[+b.dataset.react];
+    await post("subscription/state", { id: s.id, status: "actif" }); toast(`« ${s.nom} » réactivé`); renderSubs();
+  });
+  $$("[data-del]").forEach(b => b.onclick = async () => {
+    const s = SUBS[+b.dataset.del];
+    if (!confirm(`Supprimer « ${s.nom} » de ta liste ?\n\nPour un abonnement que tu as arrêté, « Résilier » garde une trace.`)) return;
+    await post("subscription/delete", { id: s.id }); toast("Supprimé"); renderSubs();
+  });
+  $$("[data-sugadd]").forEach(b => b.onclick = () => {
+    const g = sugg[+b.dataset.sugadd];
+    openSubDialog(null, { name: g.marchand, amount: g.montant, keyword: g.marchand, category: g.categorie });
+  });
+  $$("[data-sugign]").forEach(b => b.onclick = async () => {
+    const g = sugg[+b.dataset.sugign];
+    await post("subscription", { merchant: g.marchand, status: "ignored" }); renderSubs();
+  });
+}
+function openSubDialog(sub, preset) {
+  const f = $("#subForm"); f.reset();
+  $("#subTitle").textContent = sub ? `Modifier « ${sub.nom} »` : "Ajouter";
+  $("#subSubmit").textContent = sub ? "Enregistrer" : "Ajouter";
+  f.id.value = sub ? sub.id : "";
+  if (sub) {
+    f.name.value = sub.nom; f.amount.value = sub.montant; f.frequency.value = sub.frequence;
+    f.next_date.value = sub.prochain_prevu || ""; f.kind.value = sub.type; $("#subCat").value = sub.categorie;
+    f.keyword.value = sub.mot_cle || "";
+  } else {
+    const p = preset || {};
+    f.name.value = p.name || ""; f.amount.value = p.amount || ""; f.keyword.value = p.keyword || "";
+    const d = new Date(); d.setMonth(d.getMonth() + 1); f.next_date.value = iso(d);
+    $("#subCat").value = p.category || "Abonnements & streaming";
+  }
+  $("#subDialog").showModal(); (sub ? f.amount : f.name).focus();
+}
+$("#addSubBtn").onclick = () => openSubDialog(null);
+$("#subCancel").onclick = () => $("#subDialog").close();
+$("#subForm").onsubmit = async e => {
+  e.preventDefault();
+  const f = e.target;
+  const body = { name: f.name.value, amount: parseFloat(String(f.amount.value).replace(",", ".")), frequency: f.frequency.value,
+    next_date: f.next_date.value || null, category: f.category.value, kind: f.kind.value, keyword: f.keyword.value || f.name.value };
+  try {
+    if (f.id.value) { await post("subscription/edit", { ...body, id: +f.id.value }); toast(`« ${f.name.value} » modifié`); }
+    else { await post("subscription/add", body); toast(`« ${f.name.value} » ajouté`); }
+    $("#subDialog").close(); renderSubs();
+  } catch (err) { toast(err.message); }
+};
+
+/* ---------- Crédits ---------- */
+let LOANS = null;
+async function renderLoans() {
+  LOANS = await api("loans");
+  renderDebts();
+  const L = LOANS.credits;
+  $("#loanTotal").textContent = eur(LOANS.total_restant);
+  $("#loanMonthly").textContent = (LOANS.total_mensualites ? `· ${eur(LOANS.total_mensualites)} / mois` : "")
+    + (LOANS.montants_a_preciser.length ? ` · + ${LOANS.montants_a_preciser.join(", ")} (total à préciser)` : "");
+  $("#loanMerchants").innerHTML = LOANS.prelevements_candidats.map(c => `<option value="${esc(c.marchand)}">${eur(c.montant)} / mois</option>`).join("");
+  $("#loansList").innerHTML = L.length ? L.map((l, i) => `<section class="card loan" style="${l.termine ? "opacity:.6" : ""}">
+      <div class="head"><h2 style="margin:0">${esc(l.nom)}</h2>${l.termine ? '<span class="pill">remboursé</span>' : ""}</div>
+      <div class="muted" style="font-size:13px;margin-top:8px">Reste à rembourser</div>
+      ${l.montant_a_preciser ? `<div class="rest muted" style="font-size:20px">Montant total à préciser</div>
+        <div class="muted" style="font-size:13px;margin-top:6px">Clique sur « Modifier » pour indiquer le total et ce qui est déjà remboursé.</div>` : `
+      <div class="rest">${eur(l.reste_a_rembourser)}</div>
+      <div class="bar"><div style="width:${Math.min(100, l.progression)}%"></div></div>
+      <div class="muted" style="font-size:13px">${eur(l.deja_rembourse)} remboursés sur ${eur(l.montant_total)} · ${l.progression} %</div>`}
+      <div class="facts">
+        <div><span class="muted">Mensualité</span><b>${l.mensualite ? eur(l.mensualite) : "—"}${l.jour_prelevement ? ` <span class="muted" style="font-weight:400">le ${l.jour_prelevement}</span>` : ""}</b></div>
+        <div><span class="muted">Mensualités restantes</span><b>${l.mensualites_restantes || (l.termine ? 0 : "—")}</b></div>
+        <div><span class="muted">Prochaine échéance</span><b>${l.prochaine_echeance ? frDate(l.prochaine_echeance) : "—"}</b></div>
+        <div><span class="muted">Fin estimée</span><b>${l.fin_estimee ? new Date(l.fin_estimee + "T12:00:00").toLocaleDateString("fr-FR", { month: "long", year: "numeric" }) : "—"}</b></div>
+      </div>
+      <div class="muted" style="font-size:12px;margin-top:10px">${l.prelevement_associe
+        ? `Suivi automatique : opérations « ${esc(l.prelevement_associe)} »${l.mensualite ? " de " + eur(l.mensualite) : ""}${l.remboursements_suivis_auto ? ` (${eur(l.remboursements_suivis_auto)} déduits depuis le ${frDate(l.rembourse_le)})` : ""}`
+        : "Pas de prélèvement associé : mets à jour « déjà remboursé » de temps en temps."}</div>
+      <div class="controls" style="margin-top:12px;justify-content:flex-end">
+        <button class="ghost" data-loanedit="${i}">Modifier</button><button class="danger" data-loandel="${i}">Supprimer</button></div>
+    </section>`).join("")
+    : '<section class="card muted" style="text-align:center;padding:30px;grid-column:1/-1">Aucun crédit enregistré. Ajoute tes crédits avec le montant total et ce qui est déjà remboursé.</section>';
+  const cands = LOANS.prelevements_candidats.filter(c => c.ressemble_a_un_credit);
+  $("#loanCandidates").hidden = !cands.length;
+  $("#loanCandList").innerHTML = cands.map((c, i) => `<div class="line"><span>${esc(c.marchand)} <span class="muted" style="font-size:12px">· ${eur(c.montant)} / mois${c.actif ? "" : " · plus prélevé depuis le " + frDate(c.dernier_paiement)}</span></span>
+    <span class="controls" style="flex-wrap:nowrap"><button class="ghost" data-loancand="${i}">Ajouter ce crédit</button>
+      <button class="danger" data-loanhide="${i}">Masquer</button></span></div>`).join("");
+  $$("[data-loanhide]").forEach(b => b.onclick = async () => {
+    const c = cands[+b.dataset.loanhide];
+    await post("loan/hide-candidate", { merchant: c.marchand }); toast(`« ${c.marchand} » retiré des suggestions`); renderLoans();
+  });
+  $$("[data-loanedit]").forEach(b => b.onclick = () => openLoanDialog(L[+b.dataset.loanedit]));
+  $$("[data-loandel]").forEach(b => b.onclick = async () => {
+    const l = L[+b.dataset.loandel];
+    if (!confirm(`Supprimer le crédit « ${l.nom} » ?`)) return;
+    await post("loan/delete", { id: l.id }); toast("Crédit supprimé"); renderLoans();
+  });
+  $$("[data-loancand]").forEach(b => b.onclick = () => {
+    const c = cands[+b.dataset.loancand];
+    openLoanDialog(null, { merchant: c.marchand, monthly_payment: c.montant, name: c.marchand });
+  });
+}
+function openLoanDialog(loan, preset) {
+  const f = $("#loanForm"); f.reset();
+  $("#loanTitle").textContent = loan ? `Modifier « ${loan.nom} »` : "Ajouter un crédit";
+  $("#loanSubmit").textContent = loan ? "Enregistrer" : "Ajouter";
+  f.id.value = loan ? loan.id : "";
+  if (loan) {
+    f.name.value = loan.nom; f.total_due.value = loan.montant_total; f.repaid.value = loan.deja_rembourse;
+    f.monthly_payment.value = loan.mensualite ?? ""; f.merchant.value = loan.prelevement_associe ?? "";
+    f.total_due.value = loan.montant_total ?? ""; f.payment_day.value = loan.jour_prelevement ?? "";
+  } else if (preset) {
+    f.name.value = preset.name || ""; f.merchant.value = preset.merchant || ""; f.monthly_payment.value = preset.monthly_payment || "";
+  }
+  $("#loanDialog").showModal(); (loan || preset ? f.total_due : f.name).focus();
+}
+$("#addLoanBtn").onclick = () => openLoanDialog(null);
+$("#loanCancel").onclick = () => $("#loanDialog").close();
+$("#loanForm").onsubmit = async e => {
+  e.preventDefault();
+  const f = e.target, num = v => v === "" ? null : parseFloat(String(v).replace(",", "."));
+  try {
+    await post("loan/save", { id: f.id.value ? +f.id.value : null, name: f.name.value, total_due: num(f.total_due.value),
+      repaid: num(f.repaid.value) || 0, monthly_payment: num(f.monthly_payment.value), merchant: f.merchant.value,
+      payment_day: f.payment_day.value ? +f.payment_day.value : null });
+    $("#loanDialog").close(); toast(f.id.value ? "Crédit mis à jour" : "Crédit ajouté"); renderLoans();
+  } catch (err) { toast(err.message); }
+};
+
+/* ---------- On me doit ---------- */
+let DEBTS = null;
+async function renderDebts() {
+  DEBTS = await api("debts");
+  const L = DEBTS.dettes;
+  $("#debtTotal").textContent = L.length ? `${eur(DEBTS.total_du)} à récupérer` : "";
+  $("#debtList").innerHTML = L.length ? L.map((d, i) => `<div style="padding:10px 0;border-bottom:1px solid var(--line);${d.solde ? "opacity:.6" : ""}">
+      <div class="toolbar"><span><b>${esc(d.personne)}</b> ${d.solde ? '<span class="pill">tout rendu</span>' : ""}</span>
+        <span class="controls" style="flex-wrap:nowrap"><span class="amt" style="font-size:18px;font-weight:650">${eur(d.reste_du)}</span>
+          <button class="ghost" data-dedit="${i}">Modifier</button><button class="danger" data-ddel="${i}">Supprimer</button></span></div>
+      <div class="loan"><div class="bar" style="margin:8px 0 4px"><div style="width:${Math.min(100, d.progression)}%"></div></div></div>
+      <div class="muted" style="font-size:13px">${eur(d.deja_rendu)} rendus sur ${eur(d.montant_total)}${d.rendu_auto ? ` (dont ${eur(d.rendu_auto)} reçus par virement)` : ""}
+        ${d.suivi_auto ? ` · suivi auto des virements « ${esc(d.suivi_auto)} »` : ""}${d.note ? ` · ${esc(d.note)}` : ""}</div></div>`).join("")
+    : '<p class="muted" style="font-size:14px;margin:4px 0">Personne ne te doit d\'argent.</p>';
+  $$("[data-dedit]").forEach(b => b.onclick = () => openDebtDialog(L[+b.dataset.dedit]));
+  $$("[data-ddel]").forEach(b => b.onclick = async () => {
+    const d = L[+b.dataset.ddel];
+    if (!confirm(`Supprimer ce que te doit ${d.personne} ?`)) return;
+    await post("debt/delete", { id: d.id }); renderLoans();
+  });
+}
+function openDebtDialog(d) {
+  const f = $("#debtForm"); f.reset();
+  $("#debtTitle").textContent = d ? `Modifier : ${d.personne}` : "Quelqu'un te doit de l'argent";
+  $("#debtSubmit").textContent = d ? "Enregistrer" : "Ajouter";
+  f.id.value = d ? d.id : "";
+  if (d) { f.person.value = d.personne; f.total.value = d.montant_total; f.repaid.value = d.deja_rendu; f.keyword.value = d.suivi_auto || ""; f.note.value = d.note || ""; }
+  $("#debtDialog").showModal(); f.person.focus();
+}
+$("#addDebtBtn").onclick = () => openDebtDialog(null);
+$("#debtCancel").onclick = () => $("#debtDialog").close();
+$("#debtForm").onsubmit = async e => {
+  e.preventDefault();
+  const f = e.target;
+  try {
+    await post("debt/save", { id: f.id.value ? +f.id.value : null, person: f.person.value, total: parseFloat(String(f.total.value).replace(",", ".")),
+      repaid: parseFloat(String(f.repaid.value || "0").replace(",", ".")), keyword: f.keyword.value, note: f.note.value });
+    $("#debtDialog").close(); toast("Enregistré"); renderLoans();
+  } catch (err) { toast(err.message); }
+};
+
+/* ---------- Budget ---------- */
+let BG = null;
+const dayBefore = d => new Date(new Date(d + "T12:00:00") - 864e5).toISOString().slice(0, 10);
+async function renderBudget() {
+  if ($("#bgMonth").dataset.n !== String(MONTHS.length)) {
+    $("#bgMonth").innerHTML = MONTHS.map(m => `<option value="${m}">${monthName(m)}</option>`).join("");
+    $("#bgMonth").dataset.n = MONTHS.length;
+  }
+  $("#bgMonth").value = current;
+  BG = await api("budget-table?month=" + current);
+  const rows = BG.categories;
+  $("#bgTotal").textContent = eur(BG.total_budget);
+  $("#bgSpent").textContent = eur(BG.total_depense);
+  $("#bgLeft").textContent = eur(BG.total_reste);
+  $("#bgLeft").className = BG.total_reste >= 0 ? "pos" : "neg";
+  $("#bgPeriod").textContent = `Du ${frDate(BG.periode.debut)} au ${frDate(dayBefore(BG.periode.fin_exclue))} · chaque ligne se remplit avec les dépenses classées dans sa catégorie`;
+  $("#bgPeriod").textContent += " · clique sur une catégorie pour la détailler";
+  $("#bgRows").innerHTML = rows.length ? rows.map((r, i) => {
+    const over = r.budget != null && r.depense > r.budget;
+    return `<tr>
+      <td><a href="#" class="bgname" data-bgopen="${i}"><b style="font-weight:550">${esc(r.categorie)}</b></a>${r.operations ? ` <span class="muted" style="font-size:12px">· ${r.operations} op.</span>` : ""}</td>
+      <td class="amt">${r.budget != null ? eur(r.budget) : '<span class="muted">—</span>'}</td>
+      <td class="amt">${r.depense ? eur(r.depense) : '<span class="muted">0,00 €</span>'}</td>
+      <td class="amt ${r.reste == null ? "" : r.reste >= 0 ? "pos" : "neg"}">${r.reste != null ? eur(r.reste) : ""}</td>
+      <td>${r.budget ? `<div class="track" title="${r.progression} % du budget"><div class="fill ${over ? "over" : ""}" style="width:${Math.min(100, r.progression)}%"></div></div>`
+        : `<a href="#" class="muted" data-bgedit="${i}" style="font-size:12px">Fixer un budget</a>`}</td>
+      <td style="white-space:nowrap;text-align:right"><button class="ghost" data-bgedit="${i}">Modifier</button> <button class="danger" data-bgdel="${i}">Supprimer</button></td></tr>`;
+  }).join("") : '<tr><td colspan="6" class="muted">Aucune catégorie : ajoute-en une avec « + Ajouter une catégorie ».</td></tr>';
+  $("#bgFoot").innerHTML = rows.length ? `<tr><td><b>Total</b></td><td class="amt"><b>${eur(BG.total_budget)}</b></td>
+      <td class="amt"><b>${eur(BG.total_depense)}</b></td><td class="amt ${BG.total_reste >= 0 ? "pos" : "neg"}"><b>${eur(BG.total_reste)}</b></td><td></td><td></td></tr>` : "";
+  $$("[data-bgedit]").forEach(b => b.onclick = e => { e.preventDefault(); e.stopPropagation(); openBudgetDialog(rows[+b.dataset.bgedit]); });
+  $$("#bgRows tr").forEach((tr, i) => tr.onclick = e => {
+    if (e.target.closest("button, select, input") || !rows[i]) return;
+    e.preventDefault(); openCatDetail(rows[i].categorie, tr);
+  });
+  $$("[data-bgdel]").forEach(b => b.onclick = async () => {
+    const r = rows[+b.dataset.bgdel];
+    if (!confirm(`Retirer « ${r.categorie} » du tableau Budget ?\nTes opérations gardent leur catégorie.`)) return;
+    try { await post("budget-category/delete", { name: r.categorie }); toast("Catégorie retirée"); renderBudget(); } catch (err) { toast(err.message); }
+  });
+  $("#bgOtherCard").hidden = !BG.hors_budget.length;
+  $("#bgOther").innerHTML = BG.hors_budget.map((a, i) => `<div class="toolbar" style="padding:8px 0;border-bottom:1px solid var(--line)">
+      <span>${esc(a.categorie)} <span class="muted" style="font-size:12px">· ${a.operations} op.</span></span>
+      <span class="controls" style="flex-wrap:nowrap"><span class="amt">${eur(a.depense)}</span><button class="ghost" data-bgadd="${i}">+ Ajouter au budget</button></span></div>`).join("");
+  $$("[data-bgadd]").forEach(b => b.onclick = () => openBudgetDialog(null, BG.hors_budget[+b.dataset.bgadd].categorie));
+}
+function openBudgetDialog(r, preset) {
+  const f = $("#budgetForm"); f.reset();
+  $("#budgetTitle").textContent = r ? `Modifier : ${r.categorie}` : "Nouvelle catégorie";
+  $("#budgetSubmit").textContent = r ? "Enregistrer" : "Ajouter";
+  $("#budgetHint").textContent = r ? "Renommer la catégorie renomme aussi tes opérations qui y sont classées."
+    : "Les dépenses classées dans cette catégorie rempliront la ligne automatiquement.";
+  const listed = new Set((BG ? BG.categories : []).map(c => c.categorie));
+  $("#bgCatList").innerHTML = CATS.filter(c => !listed.has(c) && !["Revenus", "Salaire", "Épargne & virements internes"].includes(c))
+    .map(c => `<option value="${esc(c)}">`).join("");
+  f.old_name.value = r ? r.categorie : "";
+  f.name.value = r ? r.categorie : (preset || "");
+  if (r && r.budget != null) f.limit.value = r.budget;
+  $("#budgetDialog").showModal(); (preset || r ? f.limit : f.name).focus();
+}
+/* Fenêtre de détail d'une catégorie */
+let CD = null, cdName = null, cdSearchT = null;
+const shortDate = d => new Date(d + "T12:00:00").toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit" });
+const motionOK = () => !(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
+// Ligne du tableau de la catégorie affichée (pour y revenir à la fermeture)
+function cdRowEl() {
+  const i = (BG ? BG.categories : []).findIndex(c => c.categorie === cdName);
+  const tr = i >= 0 ? $$("#bgRows tr")[i] : null;
+  return tr && tr.isConnected && tr.getClientRects().length ? tr : null;
+}
+// Transformation qui ramène la fenêtre sur la ligne d'origine (même centre, même taille)
+function cdFromTransform(dlg, from) {
+  if (!from) return "translateY(18px) scale(.92)";
+  const d = dlg.getBoundingClientRect(), r = from.getBoundingClientRect();
+  const dx = r.left + r.width / 2 - (d.left + d.width / 2), dy = r.top + r.height / 2 - (d.top + d.height / 2);
+  const sx = Math.max(.3, Math.min(1, r.width / d.width)), sy = Math.max(.04, Math.min(1, r.height / d.height));
+  return `translate(${dx}px, ${dy}px) scale(${sx}, ${sy})`;
+}
+async function openCatDetail(name, fromEl) {
+  const dlg = $("#catDialog"), wasOpen = dlg.open;
+  cdName = name;
+  if (!wasOpen) { $("#cdSearch").value = ""; $("#cdOps").dataset.all = ""; }
+  await loadCatDetail();  // contenu prêt avant d'ouvrir : pas d'ancien contenu visible pendant l'animation
+  if (wasOpen) return;
+  dlg.getAnimations({ subtree: true }).forEach(a => a.cancel());
+  dlg.classList.remove("closing");
+  dlg.showModal(); dlg.scrollTop = 0;
+  if (!motionOK() || !dlg.animate) return;
+  // La fenêtre grandit depuis la ligne cliquée, avec un léger rebond à l'arrivée
+  dlg.animate([
+    { transform: cdFromTransform(dlg, fromEl), opacity: .4, borderRadius: "12px" },
+    { transform: "none", opacity: 1, borderRadius: "20px" }
+  ], { duration: 580, easing: "cubic-bezier(.2, 1.15, .3, 1)" });
+  // Puis son contenu se pose bloc par bloc, de haut en bas
+  [...dlg.children].forEach((el, i) => el.animate([
+    { opacity: 0, transform: "translateY(14px) scale(.985)", filter: "blur(6px)" },
+    { opacity: 1, transform: "none", filter: "blur(0)" }
+  ], { duration: 460, delay: 150 + Math.min(i, 12) * 30, easing: "cubic-bezier(.22, .9, .24, 1)", fill: "backwards" }));
+}
+// Fermeture animée : le contenu s'efface, la fenêtre rentre dans sa ligne
+let cdClosing = false;
+function closeCatDetail() {
+  const dlg = $("#catDialog");
+  if (!dlg.open || cdClosing) return;
+  if (!motionOK() || !dlg.animate) { dlg.close(); return; }
+  cdClosing = true;
+  dlg.classList.add("closing");
+  [...dlg.children].forEach(el => el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 130, fill: "forwards" }));
+  const a = dlg.animate([
+    { transform: "none", opacity: 1 },
+    { transform: cdFromTransform(dlg, cdRowEl()), opacity: 0 }
+  ], { duration: 330, easing: "cubic-bezier(.45, 0, .7, .2)", fill: "forwards" });
+  const done = () => {
+    if (!cdClosing) return;
+    cdClosing = false;
+    dlg.close(); dlg.classList.remove("closing");
+    dlg.getAnimations({ subtree: true }).forEach(x => x.cancel());
+  };
+  a.onfinish = done;
+  setTimeout(done, 500);  // filet de sécurité si l'animation est suspendue (fenêtre en arrière-plan)
+}
+async function loadCatDetail() {
+  const q = $("#cdSearch").value.trim();
+  try {
+    CD = await api(`budget-category?name=${encodeURIComponent(cdName)}&month=${encodeURIComponent(current)}${q ? "&q=" + encodeURIComponent(q) : ""}`);
+  } catch (err) { toast(err.message); return; }
+  $("#cdTitle").textContent = CD.categorie;
+  $("#cdPeriod").textContent = `Mois du ${frDate(CD.periode.debut)} au ${frDate(dayBefore(CD.periode.fin_exclue))}`;
+  const stat = (l, v, cls = "") => `<div><div class="muted" style="font-size:13px">${l}</div><div class="${cls}" style="font-size:24px;font-weight:700;letter-spacing:-.02em">${v}</div></div>`;
+  $("#cdStats").innerHTML = stat("Budget", CD.budget != null ? eur(CD.budget) : "—") + stat("Dépensé", eur(CD.depense), "neg")
+    + (CD.reste != null ? stat("Reste", eur(CD.reste), CD.reste >= 0 ? "pos" : "neg") : "");
+  $("#cdTrack").hidden = !CD.budget;
+  if (CD.budget) { $("#cdFill").style.width = Math.min(100, 100 * CD.depense / CD.budget) + "%"; $("#cdFill").classList.toggle("over", CD.depense > CD.budget); }
+  // Dépenses de la catégorie
+  const others = CATS.filter(c => c !== CD.categorie && c !== "Salaire");
+  const allOps = $("#cdOps").dataset.all === "1", nOps = CD.operations.length;
+  $("#cdOps").innerHTML = nOps ? CD.operations.slice(0, allOps ? nOps : 5).map((o, i) => `<div class="oprow">
+      <span class="muted">${shortDate(o.date)}</span>
+      <span class="lbl"><b>${esc(o.merchant || o.label)}</b><div title="${esc(o.label)}">${esc(o.label)}</div></span>
+      <span class="amt ${o.amount < 0 ? "" : "pos"}">${eur(o.amount)}</span>
+      <select data-cdmove="${i}" aria-label="Changer de catégorie"><option value="">Changer de catégorie…</option>${others.map(c => `<option>${esc(c)}</option>`).join("")}</select></div>`).join("")
+      + (nOps > 5 ? `<a href="#" id="cdMore" style="display:inline-block;font-size:13px;margin-top:8px">${allOps ? "Réduire la liste" : `Voir les ${nOps} dépenses`}</a>` : "")
+    : '<p class="muted" style="font-size:14px;margin:4px 0">Aucune dépense dans cette catégorie ce mois-ci.</p>';
+  if ($("#cdMore")) $("#cdMore").onclick = e => { e.preventDefault(); $("#cdOps").dataset.all = allOps ? "" : "1"; loadCatDetail(); };
+  $$("[data-cdmove]").forEach(sel => sel.onchange = async () => {
+    const o = CD.operations[+sel.dataset.cdmove];
+    if (!sel.value) return;
+    try { await post("category", { id: o.id, category: sel.value }); toast(`Déplacée vers « ${sel.value} »`); refreshCat(); } catch (err) { toast(err.message); }
+  });
+  // Mots-clés
+  $("#cdKw").innerHTML = CD.mots_cles.length ? CD.mots_cles.map((k, i) => `<span class="kwchip ${k.perso ? "" : "def"}">${esc(k.mot_cle)}<button type="button" data-cdkw="${i}" title="Retirer ce mot-clé" aria-label="Retirer ${esc(k.mot_cle)}">×</button></span>`).join("")
+    : '<span class="muted" style="font-size:13px">Aucun mot-clé pour l\'instant.</span>';
+  $$("[data-cdkw]").forEach(b => b.onclick = async () => {
+    const k = CD.mots_cles[+b.dataset.cdkw];
+    if (!confirm(`Ne plus ranger automatiquement les dépenses « ${k.mot_cle} » dans ${CD.categorie} ?`)) return;
+    try { await post("budget-category/keyword-delete", { category: CD.categorie, keyword: k.mot_cle }); toast("Mot-clé retiré"); refreshCat(); } catch (err) { toast(err.message); }
+  });
+  // Dépenses à ajouter
+  $("#cdCand").innerHTML = CD.a_ajouter.length ? CD.a_ajouter.map((o, i) => `<div class="oprow">
+      <span class="muted">${shortDate(o.date)}</span>
+      <span class="lbl"><b>${esc(o.merchant || o.label)}</b> <span class="pill" style="${o.category === "À classer" ? "" : "background:color-mix(in srgb, var(--text) 8%, transparent);color:var(--muted)"}">${esc(o.category)}</span><div title="${esc(o.label)}">${esc(o.label)}</div></span>
+      <span class="amt">${eur(o.amount)}</span>
+      <button class="ghost" data-cdadd="${i}">+ Ajouter</button></div>`).join("")
+    : `<p class="muted" style="font-size:14px;margin:4px 0">${$("#cdSearch").value.trim() ? "Aucune dépense trouvée." : "Toutes les dépenses du mois sont déjà rangées ici."}</p>`;
+  $$("[data-cdadd]").forEach(b => b.onclick = async () => {
+    const o = CD.a_ajouter[+b.dataset.cdadd], always = $("#cdAlways").checked;
+    try {
+      const r = await post("budget-category/assign", { id: o.id, category: CD.categorie, always });
+      toast(always ? `Ajoutée · les dépenses « ${r.mot_cle} » iront désormais dans ${CD.categorie}` + (r.operations > 1 ? ` (${r.operations} au total)` : "") : "Ajoutée à " + CD.categorie);
+      refreshCat();
+    } catch (err) { toast(err.message); }
+  });
+}
+function refreshCat() { loadCatDetail(); if (tab === "budget") renderBudget(); }
+$("#cdClose").onclick = closeCatDetail;
+$("#catDialog").addEventListener("cancel", e => { e.preventDefault(); closeCatDetail(); });  // touche Échap
+$("#catDialog").addEventListener("click", e => {  // clic à côté de la fenêtre = fermer (pas dans ses marges)
+  if (e.target !== $("#catDialog")) return;
+  const r = $("#catDialog").getBoundingClientRect();
+  if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) closeCatDetail();
+});
+$("#cdEdit").onclick = () => {
+  const r = (BG ? BG.categories : []).find(c => c.categorie === cdName) || { categorie: cdName, budget: CD && CD.budget };
+  openBudgetDialog(r);
+};
+$("#cdSearch").oninput = () => { clearTimeout(cdSearchT); cdSearchT = setTimeout(loadCatDetail, 300); };
+$("#cdKwForm").onsubmit = async e => {
+  e.preventDefault();
+  const kw = e.target.kw.value.trim();
+  if (!kw) return;
+  try {
+    const r = await post("budget-category/keyword", { category: CD.categorie, keyword: kw });
+    e.target.reset();
+    toast(`« ${r.mot_cle} » → ${r.categorie} : ${r.operations} dépense${r.operations > 1 ? "s" : ""} rangée${r.operations > 1 ? "s" : ""}` + (r.avant.length ? ` (avant : ${r.avant.join(", ")})` : ""));
+    refreshCat();
+  } catch (err) { toast(err.message); }
+};
+
+$("#addBudgetBtn").onclick = () => openBudgetDialog(null);
+$("#budgetCancel").onclick = () => $("#budgetDialog").close();
+$("#bgMonth").onchange = e => { current = e.target.value; $("#month").value = current; renderBudget(); };
+$("#budgetForm").onsubmit = async e => {
+  e.preventDefault();
+  const f = e.target, v = String(f.limit.value || "").replace(",", ".");
+  try {
+    await post("budget-category/save", { name: f.name.value.trim(), limit: v ? parseFloat(v) : null, old_name: f.old_name.value || null });
+    $("#budgetDialog").close(); toast("Enregistré");
+    CATS = await api("categories"); renderBudget();
+    if ($("#catDialog").open) openCatDetail(f.name.value.trim());
+  } catch (err) { toast(err.message); }
+};
+
+/* ---------- Saisie d'un solde ---------- */
+function openBalanceDialog() {
+  const f = $("#balForm"); f.reset();
+  const courant = ACCOUNTS.find(a => !/livret|ldds|pea|titre|epargne|épargne/i.test(a.name));
+  if (courant) f.account.value = courant.name;
+  $("#balDialog").showModal(); f.amount.focus();
+}
+$("#balCancel").onclick = () => $("#balDialog").close();
+$("#balForm").onsubmit = async e => {
+  e.preventDefault();
+  const f = e.target;
+  try {
+    await post("balance", { account: f.account.value, amount: parseFloat(String(f.amount.value).replace(",", ".")) });
+    $("#balDialog").close(); toast("Solde enregistré"); renderTab();
+  } catch (err) { toast(err.message); }
+};
+
+/* ---------- Import ---------- */
+async function upload(files) {
+  for (const f of files) {
+    try {
+      const buf = await f.arrayBuffer();
+      const r = await api(`import?filename=${encodeURIComponent(f.name)}&account=${encodeURIComponent($("#account").value)}`, { method: "POST", body: buf });
+      toast(`${f.name} : ${r.ajoutees} opérations ajoutées, ${r.doublons_ignores} doublons ignorés`);
+    } catch (e) { toast(`${f.name} : ${e.message}`); }
+  }
+  $("#importCard").hidden = true;
+  current = null;
+  init();
+}
+$("#importBtn").onclick = () => { $("#importCard").hidden = !$("#importCard").hidden; };
+$("#syncBtn").onclick = () => toApp(bankConnected ? "sync" : "connect");
+$("#pick").onclick = e => { e.preventDefault(); $("#file").click(); };
+$("#file").onchange = e => upload(e.target.files);
+const drop = $("#drop");
+["dragenter", "dragover"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add("hover"); }));
+["dragleave", "drop"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove("hover"); }));
+drop.addEventListener("drop", e => upload(e.dataTransfer.files));
+$("#month").onchange = e => { current = e.target.value; renderDash(); };
+/* ---------- Banques : connexion, double authentification ---------- */
+let BANKS = null;
+function bankFieldHTML(c) {
+  if (c.type === "select")
+    return `<label>${esc(c.label)}<select name="${esc(c.id)}">${c.choices.map(([v, l]) => `<option value="${esc(v)}" ${v === c.default ? "selected" : ""}>${esc(l)}</option>`).join("")}</select></label>`;
+  if (c.type === "bool")
+    return `<label style="display:flex;gap:8px;align-items:center"><input type="checkbox" name="${esc(c.id)}" ${/^(true|1)$/i.test(c.default || "") ? "checked" : ""}> ${esc(c.label)}</label>`;
+  return `<label>${esc(c.label)}<input type="${c.type === "password" ? "password" : "text"}" name="${esc(c.id)}" autocomplete="off" value="${c.type === "password" ? "" : esc(c.default || "")}"></label>`;
+}
+async function openBankDialog() {
+  const api = bankApi();
+  if (!api) return;
+  const [banks, st] = await Promise.all([BANKS || api.banques(), api.status()]);
+  BANKS = banks;
+  $("#bankList").innerHTML = st.connectees.length
+    ? st.connectees.map(b => `<div class="line"><span><b>${esc(b.nom)}</b> <span class="pill">connectée</span></span><button type="button" class="danger" data-bdel="${esc(b.module)}" data-nom="${esc(b.nom)}">Déconnecter</button></div>`).join("")
+    : '<p class="muted" style="font-size:14px;margin:4px 0">Aucune banque connectée pour l\'instant.</p>';
+  $("#bankWarn").hidden = st.trousseau_ok !== false;
+  $("#bankWarn").textContent = "Aucun trousseau sécurisé disponible : impossible d'enregistrer des identifiants (sous Linux, installe GNOME Keyring ou KWallet).";
+  const deja = new Set(st.connectees.map(b => b.module));
+  $("#bankModule").innerHTML = '<option value="">Choisis ta banque…</option>' + banks.map(b => `<option value="${esc(b.module)}">${esc(b.nom)}${deja.has(b.module) ? " (déjà connectée : remplacer)" : ""}</option>`).join("");
+  $("#bankFields").innerHTML = "";
+  $$("[data-bdel]").forEach(btn => btn.onclick = async () => {
+    if (!confirm(`Déconnecter ${btn.dataset.nom} ?\n\nSes identifiants seront effacés du trousseau. Les opérations déjà importées sont conservées.`)) return;
+    await api.disconnect(btn.dataset.bdel); toast(`${btn.dataset.nom} déconnectée`); openBankDialog();
+  });
+  if (!$("#bankDialog").open) $("#bankDialog").showModal();
+}
+window.openBankDialog = openBankDialog;
+$("#bankModule").onchange = e => {
+  const b = (BANKS || []).find(x => x.module === e.target.value);
+  $("#bankFields").innerHTML = b ? b.champs.map(bankFieldHTML).join("") : "";
+};
+$("#bankCancel").onclick = () => $("#bankDialog").close();
+$("#bankBtn").onclick = () => openBankDialog();
+$("#bankForm").onsubmit = async e => {
+  e.preventDefault();
+  const b = (BANKS || []).find(x => x.module === $("#bankModule").value);
+  if (!b) { toast("Choisis ta banque."); return; }
+  const vals = {};
+  b.champs.forEach(c => { const el = e.target.elements[c.id]; if (el) vals[c.id] = c.type === "bool" ? el.checked : el.value; });
+  const r = await bankApi().connect(b.module, vals);
+  $$("#bankFields input[type=password]").forEach(i => i.value = "");
+  if (!r || !r.ok) { toast((r && r.erreur) || "Connexion impossible"); return; }
+  $("#bankDialog").close(); toast(`${b.nom} connectée : synchronisation…`);
+};
+function openQuestionDialog(e) {
+  $("#questionTitle").textContent = `${e.banque || "Ta banque"} : vérification`;
+  $("#questionFields").innerHTML = e.fields.map(f => `<label>${esc(f.label)}<input type="${f.masked ? "password" : "text"}" name="${esc(f.id)}" autocomplete="one-time-code" required></label>`).join("");
+  $("#questionDialog").showModal();
+  const first = $("#questionFields input"); if (first) first.focus();
+}
+$("#questionForm").onsubmit = async e => {
+  e.preventDefault();
+  const vals = {};
+  $$("#questionFields input").forEach(i => { vals[i.name] = i.value; i.value = ""; });
+  $("#questionDialog").close();
+  await bankApi().answer(vals);
+};
+$("#questionCancel").onclick = async () => { $("#questionDialog").close(); await bankApi().cancel_question(); };
+window.addEventListener("pywebviewready", () => { paintSync(); toApp("state"); });
+document.addEventListener("keydown", e => {
+  if (bridge() !== "py" || !(e.ctrlKey || e.metaKey)) return;  // l'appli Mac a ses propres raccourcis (menus)
+  const tabs = { "1": "dash", "2": "solde", "3": "budget", "4": "subs", "5": "credits" };
+  if (tabs[e.key]) { e.preventDefault(); showTab(tabs[e.key]); }
+  else if (e.key.toLowerCase() === "s") { e.preventDefault(); toApp(bankConnected ? "sync" : "connect"); }
+  else if (e.key.toLowerCase() === "o") { e.preventDefault(); $("#importCard").hidden = false; $("#file").click(); }
+});
+
+document.body.classList.add("unlocking");
+setTimeout(() => document.body.classList.remove("unlocking"), 1200);
+init().catch(e => toast(e.message));
+</script>
+</body>
+</html>

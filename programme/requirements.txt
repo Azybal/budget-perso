@@ -1,0 +1,9 @@
+woob==3.7
+pywebview==6.2.1; sys_platform != "linux"
+pywebview[qt]==6.2.1; sys_platform == "linux"
+keyring==25.7.0
+cryptography==50.0.2
+schwifty==2026.11.0
+python-jose==3.5.0
+pycryptodomex==3.24.2
+chompjs==1.4.1

@@ -1,0 +1,653 @@
+[
+ {
+  "module": "cragr",
+  "nom": "Crédit Agricole",
+  "champs": [
+   {
+    "id": "website",
+    "label": "Caisse Régionale",
+    "type": "select",
+    "choices": [
+     [
+      "www.ca-alpesprovence.fr",
+      "Alpes Provence (www.ca-alpesprovence.fr)"
+     ],
+     [
+      "www.ca-alsace-vosges.fr",
+      "Alsace-Vosges (www.ca-alsace-vosges.fr)"
+     ],
+     [
+      "www.ca-anjou-maine.fr",
+      "Anjou Maine (www.ca-anjou-maine.fr)"
+     ],
+     [
+      "www.ca-aquitaine.fr",
+      "Aquitaine (www.ca-aquitaine.fr)"
+     ],
+     [
+      "www.ca-atlantique-vendee.fr",
+      "Atlantique Vendée (www.ca-atlantique-vendee.fr)"
+     ],
+     [
+      "www.ca-briepicardie.fr",
+      "Brie Picardie (www.ca-briepicardie.fr)"
+     ],
+     [
+      "www.ca-cb.fr",
+      "Champagne Bourgogne (www.ca-cb.fr)"
+     ],
+     [
+      "www.ca-centrefrance.fr",
+      "Centre France (www.ca-centrefrance.fr)"
+     ],
+     [
+      "www.ca-centreloire.fr",
+      "Centre Loire (www.ca-centreloire.fr)"
+     ],
+     [
+      "www.ca-centreouest.fr",
+      "Centre Ouest (www.ca-centreouest.fr)"
+     ],
+     [
+      "www.ca-centrest.fr",
+      "Centre Est (www.ca-centrest.fr)"
+     ],
+     [
+      "www.ca-charente-perigord.fr",
+      "Charente Périgord (www.ca-charente-perigord.fr)"
+     ],
+     [
+      "www.ca-cmds.fr",
+      "Charente-Maritime Deux-Sèvres (www.ca-cmds.fr)"
+     ],
+     [
+      "www.ca-corse.fr",
+      "Corse (www.ca-corse.fr)"
+     ],
+     [
+      "www.ca-cotesdarmor.fr",
+      "Côtes d'Armor (www.ca-cotesdarmor.fr)"
+     ],
+     [
+      "www.ca-des-savoie.fr",
+      "Des Savoie (www.ca-des-savoie.fr)"
+     ],
+     [
+      "www.ca-finistere.fr",
+      "Finistere (www.ca-finistere.fr)"
+     ],
+     [
+      "www.ca-franchecomte.fr",
+      "Franche-Comté (www.ca-franchecomte.fr)"
+     ],
+     [
+      "www.ca-guadeloupe.fr",
+      "Guadeloupe (www.ca-guadeloupe.fr)"
+     ],
+     [
+      "www.ca-illeetvilaine.fr",
+      "Ille-et-Vilaine (www.ca-illeetvilaine.fr)"
+     ],
+     [
+      "www.ca-languedoc.fr",
+      "Languedoc (www.ca-languedoc.fr)"
+     ],
+     [
+      "www.ca-loirehauteloire.fr",
+      "Loire Haute Loire (www.ca-loirehauteloire.fr)"
+     ],
+     [
+      "www.ca-lorraine.fr",
+      "Lorraine (www.ca-lorraine.fr)"
+     ],
+     [
+      "www.ca-martinique.fr",
+      "Martinique Guyane (www.ca-martinique.fr)"
+     ],
+     [
+      "www.ca-morbihan.fr",
+      "Morbihan (www.ca-morbihan.fr)"
+     ],
+     [
+      "www.ca-nmp.fr",
+      "Nord Midi-Pyrénées (www.ca-nmp.fr)"
+     ],
+     [
+      "www.ca-nord-est.fr",
+      "Nord Est (www.ca-nord-est.fr)"
+     ],
+     [
+      "www.ca-norddefrance.fr",
+      "Nord de France (www.ca-norddefrance.fr)"
+     ],
+     [
+      "www.ca-normandie-seine.fr",
+      "Normandie Seine (www.ca-normandie-seine.fr)"
+     ],
+     [
+      "www.ca-normandie.fr",
+      "Normandie (www.ca-normandie.fr)"
+     ],
+     [
+      "www.ca-paris.fr",
+      "Ile-de-France (www.ca-paris.fr)"
+     ],
+     [
+      "www.ca-pca.fr",
+      "Provence Côte d'Azur (www.ca-pca.fr)"
+     ],
+     [
+      "www.ca-pyrenees-gascogne.fr",
+      "Pyrénées Gascogne (www.ca-pyrenees-gascogne.fr)"
+     ],
+     [
+      "www.ca-reunion.fr",
+      "Réunion (www.ca-reunion.fr)"
+     ],
+     [
+      "www.ca-sudmed.fr",
+      "Sud Méditerranée (www.ca-sudmed.fr)"
+     ],
+     [
+      "www.ca-sudrhonealpes.fr",
+      "Sud Rhône Alpes (www.ca-sudrhonealpes.fr)"
+     ],
+     [
+      "www.ca-toulouse31.fr",
+      "Toulouse 31 (www.ca-toulouse31.fr)"
+     ],
+     [
+      "www.ca-tourainepoitou.fr",
+      "Tourraine Poitou (www.ca-tourainepoitou.fr)"
+     ],
+     [
+      "www.ca-valdefrance.fr",
+      "Val de France (www.ca-valdefrance.fr)"
+     ]
+    ]
+   },
+   {
+    "id": "login",
+    "label": "Identifiant à 11 chiffres",
+    "type": "text",
+    "regexp": "^\\d{11}$"
+   },
+   {
+    "id": "password",
+    "label": "Code personnel à 6 chiffres",
+    "type": "password",
+    "regexp": "^\\d{6}$"
+   }
+  ]
+ },
+ {
+  "module": "bnp",
+  "nom": "BNP Paribas",
+  "champs": [
+   {
+    "id": "login",
+    "label": "Numéro client",
+    "type": "text"
+   },
+   {
+    "id": "password",
+    "label": "Code secret",
+    "type": "password",
+    "regexp": "^(\\d{6})$"
+   }
+  ]
+ },
+ {
+  "module": "hellobank",
+  "nom": "Hello bank!",
+  "champs": [
+   {
+    "id": "login",
+    "label": "Numéro client",
+    "type": "text"
+   },
+   {
+    "id": "password",
+    "label": "Code secret",
+    "type": "password",
+    "regexp": "^(\\d{6})$"
+   }
+  ]
+ },
+ {
+  "module": "societegenerale",
+  "nom": "Société Générale / SG",
+  "champs": [
+   {
+    "id": "login",
+    "label": "Code client",
+    "type": "text"
+   },
+   {
+    "id": "password",
+    "label": "Code secret",
+    "type": "password"
+   }
+  ]
+ },
+ {
+  "module": "lcl",
+  "nom": "LCL",
+  "champs": [
+   {
+    "id": "login",
+    "label": "Identifiant",
+    "type": "text"
+   },
+   {
+    "id": "password",
+    "label": "Code personnel",
+    "type": "password"
+   }
+  ]
+ },
+ {
+  "module": "creditmutuel",
+  "nom": "Crédit Mutuel",
+  "champs": [
+   {
+    "id": "login",
+    "label": "Identifiant",
+    "type": "text"
+   },
+   {
+    "id": "password",
+    "label": "Mot de passe",
+    "type": "password"
+   }
+  ]
+ },
+ {
+  "module": "cic",
+  "nom": "CIC",
+  "champs": [
+   {
+    "id": "login",
+    "label": "Identifiant",
+    "type": "text"
+   },
+   {
+    "id": "password",
+    "label": "Mot de passe",
+    "type": "password"
+   }
+  ]
+ },
+ {
+  "module": "caissedepargne",
+  "nom": "Caisse d'Épargne",
+  "champs": [
+   {
+    "id": "login",
+    "label": "Identifiant client",
+    "type": "text"
+   },
+   {
+    "id": "password",
+    "label": "Mot de passe",
+    "type": "password",
+    "regexp": "^\\d+$"
+   },
+   {
+    "id": "auth_type",
+    "label": "Type de compte",
+    "type": "select",
+    "choices": [
+     [
+      "part",
+      "Particulier"
+     ],
+     [
+      "pp",
+      "Personne protégée"
+     ],
+     [
+      "pro",
+      "Professionnel"
+     ],
+     [
+      "ent",
+      "Entreprise"
+     ]
+    ]
+   }
+  ]
+ },
+ {
+  "module": "banquepopulaire",
+  "nom": "Banque Populaire",
+  "champs": [
+   {
+    "id": "cdetab",
+    "label": "Région",
+    "type": "select",
+    "choices": [
+     [
+      "14707",
+      "Alsace Lorraine Champagne ( 14707 )"
+     ],
+     [
+      "10907",
+      "Aquitaine Centre Atlantique ( 10907 )"
+     ],
+     [
+      "16807",
+      "Auvergne Rhone Alpes ( 16807 )"
+     ],
+     [
+      "10807",
+      "Bourgogne Franche Comté ( 10807 )"
+     ],
+     [
+      "13807",
+      "Grand Ouest ( 13807 )"
+     ],
+     [
+      "14607",
+      "Mediterranée ( 14607 )"
+     ],
+     [
+      "13507",
+      "Nord ( 13507 )"
+     ],
+     [
+      "17807",
+      "Occitane ( 17807 )"
+     ],
+     [
+      "10207",
+      "Rives de Paris ( 10207 )"
+     ],
+     [
+      "16607",
+      "Sud ( 16607 )"
+     ],
+     [
+      "18707",
+      "Val de France ( 18707 )"
+     ],
+     [
+      "Padding",
+      "ZZ Do not use that entry ( Padding )"
+     ]
+    ],
+    "regexp": "^\\d{5}$"
+   },
+   {
+    "id": "login",
+    "label": "Identifiant",
+    "type": "text",
+    "regexp": "^[a-zA-Z0-9]+$"
+   },
+   {
+    "id": "password",
+    "label": "Mot de passe",
+    "type": "password"
+   }
+  ]
+ },
+ {
+  "module": "bp",
+  "nom": "La Banque Postale",
+  "champs": [
+   {
+    "id": "login",
+    "label": "Identifiant",
+    "type": "text",
+    "regexp": "^\\d{10}[a-zA-Z0-9]?$"
+   },
+   {
+    "id": "password",
+    "label": "Mot de passe",
+    "type": "password",
+    "regexp": "^(\\d{6})$"
+   }
+  ]
+ },
+ {
+  "module": "boursorama",
+  "nom": "BoursoBank (Boursorama)",
+  "champs": [
+   {
+    "id": "login",
+    "label": "Identifiant",
+    "type": "text",
+    "regexp": "^[0-9]+$"
+   },
+   {
+    "id": "password",
+    "label": "Mot de passe",
+    "type": "password",
+    "regexp": "^[a-zA-Z0-9]+$"
+   }
+  ]
+ },
+ {
+  "module": "fortuneo",
+  "nom": "Fortuneo",
+  "champs": [
+   {
+    "id": "login",
+    "label": "Identifiant",
+    "type": "text"
+   },
+   {
+    "id": "password",
+    "label": "Mot de passe",
+    "type": "password"
+   }
+  ]
+ },
+ {
+  "module": "bred",
+  "nom": "BRED",
+  "champs": [
+   {
+    "id": "login",
+    "label": "Identifiant",
+    "type": "text",
+    "regexp": "^.{1,32}$"
+   },
+   {
+    "id": "password",
+    "label": "Mot de passe",
+    "type": "password"
+   }
+  ]
+ },
+ {
+  "module": "creditcooperatif",
+  "nom": "Crédit Coopératif",
+  "champs": [
+   {
+    "id": "login",
+    "label": "Identifiant",
+    "type": "text",
+    "regexp": "^[a-zA-Z0-9]+$"
+   },
+   {
+    "id": "password",
+    "label": "Mot de passe",
+    "type": "password"
+   }
+  ]
+ },
+ {
+  "module": "cmb",
+  "nom": "Crédit Mutuel de Bretagne",
+  "champs": [
+   {
+    "id": "login",
+    "label": "Identifiant",
+    "type": "text"
+   },
+   {
+    "id": "password",
+    "label": "Mot de passe",
+    "type": "password"
+   }
+  ]
+ },
+ {
+  "module": "cmso",
+  "nom": "Crédit Mutuel du Sud-Ouest",
+  "champs": [
+   {
+    "id": "login",
+    "label": "Identifiant",
+    "type": "text"
+   },
+   {
+    "id": "password",
+    "label": "Mot de passe",
+    "type": "password"
+   }
+  ]
+ },
+ {
+  "module": "axabanque",
+  "nom": "AXA Banque",
+  "champs": [
+   {
+    "id": "login",
+    "label": "Identifiant",
+    "type": "text"
+   },
+   {
+    "id": "password",
+    "label": "Code",
+    "type": "password",
+    "regexp": "^\\S+$"
+   }
+  ]
+ },
+ {
+  "module": "bforbank",
+  "nom": "BforBank",
+  "champs": [
+   {
+    "id": "login",
+    "label": "Identifiant",
+    "type": "text"
+   },
+   {
+    "id": "password",
+    "label": "Code personnel",
+    "type": "password",
+    "regexp": "^\\d+$"
+   },
+   {
+    "id": "birthdate",
+    "label": "Date de naissance",
+    "type": "text"
+   }
+  ]
+ },
+ {
+  "module": "allianzbanque",
+  "nom": "Allianz Banque",
+  "champs": [
+   {
+    "id": "login",
+    "label": "Identifiant",
+    "type": "text"
+   },
+   {
+    "id": "password",
+    "label": "Mot de passe",
+    "type": "password"
+   }
+  ]
+ },
+ {
+  "module": "ccf",
+  "nom": "CCF (ex-HSBC France)",
+  "champs": [
+   {
+    "id": "login",
+    "label": "Identifiant",
+    "type": "text",
+    "regexp": "^\\d{9}$"
+   },
+   {
+    "id": "password",
+    "label": "Mot de passe",
+    "type": "password",
+    "regexp": "^\\d{8}$"
+   },
+   {
+    "id": "security_code",
+    "label": "Code de sécurité",
+    "type": "password",
+    "regexp": "^\\d{5}$"
+   }
+  ]
+ },
+ {
+  "module": "n26",
+  "nom": "N26",
+  "champs": [
+   {
+    "id": "login",
+    "label": "Email",
+    "type": "text",
+    "regexp": "^.+$"
+   },
+   {
+    "id": "password",
+    "label": "Password",
+    "type": "password"
+   }
+  ]
+ },
+ {
+  "module": "orangebank",
+  "nom": "Orange Bank",
+  "champs": [
+   {
+    "id": "login",
+    "label": "Identifiant",
+    "type": "text",
+    "regexp": "^[0-9]{8}$"
+   }
+  ]
+ },
+ {
+  "module": "mafrenchbank",
+  "nom": "Ma French Bank",
+  "champs": [
+   {
+    "id": "login",
+    "label": "Alias",
+    "type": "text"
+   },
+   {
+    "id": "password",
+    "label": "Mot de passe",
+    "type": "password"
+   }
+  ]
+ },
+ {
+  "module": "nef",
+  "nom": "La Nef",
+  "champs": [
+   {
+    "id": "login",
+    "label": "username",
+    "type": "text",
+    "regexp": "^.+$"
+   },
+   {
+    "id": "password",
+    "label": "Password",
+    "type": "password"
+   }
+  ]
+ }
+]

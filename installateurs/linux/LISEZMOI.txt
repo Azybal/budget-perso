@@ -1,0 +1,77 @@
+BUDGET PERSO — pour Linux
+================================
+
+Un logiciel de budget personnel qui se connecte directement à ta banque.
+Tout reste sur ton ordinateur : tes opérations, tes abonnements, tes crédits et tes identifiants
+ne sont envoyés à personne. Aucune intelligence artificielle, aucun serveur extérieur.
+
+
+INSTALLATION (une seule fois, environ 5 minutes)
+------------------------------------------------
+1. Décompresse l'archive :  tar -xzf Budget-perso-Linux.tar.gz
+2. Lance l'installation :  ./Budget-perso-Linux/installer.sh
+   L'installation se fait dans ton dossier utilisateur, sans sudo. Il faut curl, et un trousseau
+   sécurisé (GNOME Keyring ou KWallet) pour enregistrer les identifiants bancaires.
+3. Ouvre « Budget perso » depuis le menu des applications.
+Le dossier décompressé peut ensuite être supprimé.
+
+
+CONNECTER TA BANQUE
+-------------------
+Clique sur « Connecter ma banque », choisis ta banque dans la liste (24 banques françaises :
+Crédit Agricole, BNP Paribas, Société Générale, LCL, Crédit Mutuel, CIC, Caisse d'Épargne,
+Banque Populaire, La Banque Postale, BoursoBank, Fortuneo…), puis remplis tes identifiants.
+- Ton ordinateur se connecte directement au site de ta banque, sans intermédiaire.
+- Les identifiants sont rangés dans le trousseau sécurisé de ta session (GNOME Keyring ou KWallet), chiffrés et liés à ta session.
+  Ils ne sont jamais écrits dans un fichier.
+- Si ta banque demande un code (SMS, carte…), une fenêtre s'ouvre pour le saisir. Si elle demande
+  une validation dans son application, valide sur ton téléphone : le logiciel attend.
+- Tu peux connecter plusieurs banques (bouton « Mes banques »).
+- Si une banque refuse tes identifiants, ils sont effacés aussitôt (pour éviter un blocage).
+La synchronisation se fait au lancement (si la dernière date de plus de 6 h) ou avec
+le bouton « Synchroniser » (Ctrl+S).
+
+
+CE QUE FAIT LE LOGICIEL
+-----------------------
+- Tableau de bord : solde actuel (et solde avec les opérations à venir), dépenses et rentrées
+  du mois, historique, dépenses par catégorie, prochains prélèvements.
+- Solde : solde de chaque compte, solde prévu en fin de mois, opérations à venir annoncées
+  par la banque, dépenses ponctuelles prévues, tableau de toutes tes dépenses.
+- Abonnements : ta liste d'abonnements, charges fixes et rentrées régulières (ajouter,
+  modifier le prix ou la date, résilier). Plus de 2 mois sans paiement = abonnement arrêté.
+- Crédits : tes crédits en cours (reste à rembourser, fin estimée) et l'argent qu'on te doit.
+- Réglages (onglet Solde) : jour où commence ton mois (ex. le 25 si tu es payé le 25),
+  façon d'estimer les dépenses du quotidien.
+Raccourcis : Ctrl+1 à Ctrl+4 pour les onglets, Ctrl+S pour synchroniser.
+
+
+MISES À JOUR AUTOMATIQUES
+-------------------------
+Au lancement, puis toutes les 6 heures, le logiciel regarde s'il existe une nouvelle version
+(publiée sur GitHub). Si oui, il la télécharge, vérifie qu'elle est bien signée par son auteur
+(un fichier modifié ou venant de quelqu'un d'autre est refusé), l'installe et te propose
+de redémarrer. Tes données ne sont jamais touchées, et la version précédente est gardée
+de côté au cas où.
+
+
+CONFIDENTIALITÉ
+---------------
+- Données : ~/.local/share/budget-perso/donnees, accessibles uniquement à ton compte.
+  Pour plus de sécurité, active le chiffrement du disque (chiffrement du dossier personnel ou du disque (LUKS)).
+- Le logiciel ne contacte que les sites de tes banques (pendant une synchronisation) et GitHub
+  pour savoir s'il existe une mise à jour (sans rien envoyer de tes données).
+  L'installation télécharge en plus des programmes (Python, composants du logiciel, modules de
+  connexion bancaire Woob) : aucune de tes données n'est envoyée.
+- La session bancaire est gardée sur ton ordinateur pour que ta banque ne redemande pas un code
+  à chaque synchronisation (comme quand tu restes connecté sur son site).
+- La fenêtre est en mode privé : elle ne garde ni cache ni cookies, et n'affiche que des pages
+  venant de ton propre ordinateur.
+- La connexion aux banques passe par l'outil libre Woob : elle n'est pas « officielle » et peut
+  cesser de fonctionner si une banque modifie son site.
+
+
+DÉSINSTALLER
+------------
+Lance  ./desinstaller.sh  depuis le dossier décompressé (ou garde-le de côté pour ça).
+Tes identifiants sont retirés du trousseau ; tes données ne sont supprimées que si tu le confirmes.

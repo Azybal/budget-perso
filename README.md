@@ -13,16 +13,24 @@ calcule ton solde de fin de mois, suit tes abonnements et tes crédits, sans auc
 
 </div>
 
+> [!IMPORTANT]
+> **Pour installer Budget perso**, télécharge le fichier de ton système avec les liens ci-dessus, ou dans la partie
+> **Assets** de la [dernière version](https://github.com/Azybal/budget-perso/releases/latest) :
+> `Budget-perso-Windows.zip`, `Budget-perso-macOS.zip` ou `Budget-perso-Linux.tar.gz`.
+>
+> Les liens **Source code (zip / tar.gz)** ajoutés par GitHub contiennent seulement le code du programme, pas l'installateur.
+
 ---
 
 ## Ce que fait Budget perso
 
 | | |
 |---|---|
-| **Tableau de bord** | Ton solde actuel en grand, et juste en dessous le solde une fois passées les opérations à venir. Dépenses et rentrées du mois, historique sur 12 mois, dépenses par catégorie avec budgets, prochains prélèvements. |
+| **Tableau de bord** | Ton solde actuel en grand, et juste en dessous le solde une fois passées les opérations à venir. Dépenses depuis ta dernière paie, rentrées du mois, abonnements et charges fixes, historique sur 12 mois, dépenses par catégorie, prochains prélèvements. |
 | **Solde prévisionnel** | Ce qu'il te restera à la fin du mois : solde actuel − prélèvements et crédits à venir + salaire et rentrées attendues (− dépenses du quotidien estimées, si tu le souhaites). Il affiche aussi la veille de ta paie, pour voir venir un découvert. |
 | **Opérations à venir** | Les paiements par carte pas encore débités et les prélèvements programmés, tels que ta banque les annonce. Ils sont pris en compte dans le prévisionnel. |
-| **Abonnements** | Ta liste d'abonnements, de charges fixes et de rentrées régulières : prochain prélèvement, dernier paiement constaté, hausse de prix. Tu peux modifier le prix ou la date, ou résilier. Un abonnement sans paiement depuis plus de 2 mois passe automatiquement en « arrêté ». |
+| **Budget** | Un budget par catégorie (courses, transport, sorties…) qui se remplit tout seul avec tes dépenses : dépensé, reste, barre de progression. Ajoute, renomme ou supprime tes catégories. Clique sur une catégorie pour voir ses dépenses du mois, y ranger d'autres dépenses en un clic et choisir des mots-clés : les prochaines dépenses du même marchand y iront automatiquement. |
+| **Mensualités** | Ta liste d'abonnements, de charges fixes et de rentrées régulières : prochain prélèvement, dernier paiement constaté, hausse de prix. Tu peux modifier le prix ou la date, ou résilier. Un abonnement sans paiement depuis plus de 2 mois passe automatiquement en « arrêté ». |
 | **Crédits** | Tes crédits en cours : reste à rembourser, mensualités restantes, fin estimée. Les mensualités sont déduites automatiquement quand elles passent sur ton compte. |
 | **On me doit** | L'argent que des proches te doivent, déduit automatiquement quand ils te remboursent. |
 | **Dépenses prévues** | Une dépense ou une rentrée exceptionnelle à venir est comptée dans le mois concerné, puis marquée « payée » toute seule. |
@@ -93,6 +101,17 @@ Au lancement, puis toutes les 6 heures, Budget perso regarde s'il existe une nou
 5. Il te propose de redémarrer.
 
 Tes données ne sont jamais touchées par une mise à jour.
+
+---
+
+## Contenu de ce dépôt
+
+| Dossier | Contenu |
+|---|---|
+| [`programme/`](programme) | Le logiciel lui-même : fenêtre (`BudgetPerso.pyw`), moteur local (`moteur/`), mises à jour signées (`mise_a_jour.py`). C'est ce que contient chaque paquet de mise à jour. |
+| [`installateurs/`](installateurs) | Les scripts d'installation et de désinstallation pour Windows, macOS et Linux, avec leur `LISEZMOI.txt`. |
+
+Pour installer, utilise plutôt les fichiers prêts à l'emploi de la [dernière version](https://github.com/Azybal/budget-perso/releases/latest) : ils réunissent le programme et l'installateur.
 
 ---
 
