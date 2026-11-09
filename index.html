@@ -173,6 +173,27 @@ h2 { font-size: clamp(36px, 5.6vw, 72px); line-height: 1.02; letter-spacing: -.0
 .dl a.mine .tag { display: block; }
 @media (max-width: 760px) { .dl { grid-template-columns: 1fr; } }
 
+/* ---------- À ton image (paramètres) ---------- */
+.custom { padding: 150px 0 40px; overflow: hidden; }
+.custom .glow { width: 620px; height: 620px; right: -160px; top: 10%; background: var(--blue); opacity: .2; transition: background .6s; }
+.custom-grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 56px; align-items: center; }
+.try { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 28px; color: var(--muted); font-size: 15px; }
+.dots { display: flex; gap: 10px; align-items: center; }
+.dots button, .dots .rainbow { width: 30px; height: 30px; border-radius: 50%; border: 0; cursor: pointer; padding: 0; background: var(--c);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.15); transition: transform .35s cubic-bezier(.34,1.42,.52,1), box-shadow .25s; }
+.dots button:hover, .dots .rainbow:hover { transform: scale(1.15); }
+.dots button.on, .dots .rainbow.on { box-shadow: 0 0 0 3px var(--bg), 0 0 0 5px var(--c); }
+.dots .rainbow { position: relative; overflow: hidden; --c: #fff;
+  background: conic-gradient(from 90deg, #ff3b30, #ff9500, #ffcc00, #34c759, #00c7be, #0a84ff, #5e5ce6, #bf5af2, #ff2d55, #ff3b30); }
+.dots .rainbow input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; border: 0; padding: 0; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 26px; }
+.chips span { padding: 8px 14px; border-radius: 980px; background: var(--card); border: 1px solid var(--line); font-size: 14px; font-weight: 550; }
+.custom-shots { position: relative; padding-bottom: 90px; }
+.custom-shots .mac { will-change: transform; }
+.custom-shots .mac.reveal { transition: opacity 1s var(--ease), filter 1s var(--ease); }  /* le mouvement suit le défilement sans retard */
+.custom-shots .mac.small { position: absolute; width: 62%; right: -6%; bottom: 0; box-shadow: 0 30px 90px rgba(0,0,0,.75), 0 0 0 1px rgba(255,255,255,.08); }
+@media (max-width: 900px) { .custom-grid { grid-template-columns: 1fr; } .custom-shots .mac.small { right: 0; } }
+
 footer { border-top: 1px solid var(--line); padding: 40px 0 60px; color: var(--muted); font-size: 13px; }
 footer .wrap { display: flex; gap: 20px; flex-wrap: wrap; justify-content: space-between; }
 
@@ -227,7 +248,7 @@ footer .wrap { display: flex; gap: 20px; flex-wrap: wrap; justify-content: space
         <div class="step"><span class="kicker">Solde prévisionnel</span><h3>Sache ce qu'il te restera. Avant la fin du mois.</h3>
           <p>Prélèvements, crédits, salaire attendu et opérations annoncées par ta banque : le solde de fin de mois est calculé pour toi, et même celui de la veille de ta paie.</p></div>
         <div class="step"><span class="kicker">Budget</span><h3>Un budget par catégorie. Rempli tout seul.</h3>
-          <p>Fixe un montant pour les courses, les sorties ou le transport : chaque dépense vient remplir sa ligne, et tu vois tout de suite ce qu'il te reste.</p></div>
+          <p>Fixe un montant pour les courses, les sorties ou le transport : chaque dépense vient remplir sa ligne. La barre passe en orange à l'approche de la limite, en rouge si tu la dépasses.</p></div>
         <div class="step"><span class="kicker">Mensualités</span><h3>Plus aucun abonnement oublié.</h3>
           <p>Abonnements, charges fixes et rentrées régulières, avec le dernier paiement et le prochain. Un abonnement sans paiement depuis deux mois passe en « arrêté ».</p></div>
         <div class="step"><span class="kicker">Crédits</span><h3>Tes crédits, jusqu'à la dernière échéance.</h3>
@@ -263,6 +284,37 @@ footer .wrap { display: flex; gap: 20px; flex-wrap: wrap; justify-content: space
   </div>
 </section>
 
+<!-- ===================== À TON IMAGE (PARAMÈTRES) ===================== -->
+<section class="custom" id="parametres">
+  <div class="glow"></div>
+  <div class="wrap custom-grid">
+    <div class="custom-text">
+      <span class="kicker reveal">Paramètres</span>
+      <h2 class="reveal" style="--d:.08s">À ton image.</h2>
+      <p class="sub reveal" style="--d:.16s">Thème, couleurs, alertes, discrétion : une vraie fenêtre de réglages, avec une recherche pour tout retrouver.</p>
+      <div class="try reveal" style="--d:.22s">
+        <span>Essaie une couleur :</span>
+        <div class="dots" id="accentDots">
+          <button type="button" data-c="#0a84ff,#0062cc" style="--c:#0a84ff" class="on" aria-label="Bleu"></button>
+          <button type="button" data-c="#bf5af2,#8e3fd0" style="--c:#bf5af2" aria-label="Violet"></button>
+          <button type="button" data-c="#ff375f,#d42452" style="--c:#ff375f" aria-label="Rose"></button>
+          <button type="button" data-c="#ff9f0a,#e07000" style="--c:#ff9f0a" aria-label="Orange"></button>
+          <button type="button" data-c="#30d158,#1c9e45" style="--c:#30d158" aria-label="Vert"></button>
+          <label class="rainbow" title="N'importe quelle couleur"><input type="color" id="accentPick" value="#0a84ff" aria-label="Couleur au choix"></label>
+        </div>
+      </div>
+      <div class="chips reveal" style="--d:.3s">
+        <span>Clair, sombre ou automatique</span><span>Roue des couleurs</span><span>Mode discret</span><span>Alerte de budget</span>
+        <span>Alerte de solde bas</span><span>Taille du texte</span><span>Export CSV</span><span>Sauvegarde</span><span>Synchro automatique</span>
+      </div>
+    </div>
+    <div class="custom-shots">
+      <div class="mac reveal" id="prefMac"><div class="bar"><i></i><i></i><i></i></div><div class="screen"><img src="images/parametres.jpg" alt="Fenêtre Paramètres : thème et roue des couleurs" loading="lazy"></div></div>
+      <div class="mac small reveal" style="--d:.15s" id="prefMac2"><div class="bar"><i></i><i></i><i></i></div><div class="screen"><img src="images/parametres-alertes.jpg" alt="Fenêtre Paramètres : alertes de budget et de solde bas" loading="lazy"></div></div>
+    </div>
+  </div>
+</section>
+
 <!-- ===================== PHRASE ===================== -->
 <section class="statement" id="confidentialite">
   <div class="glow"></div>
@@ -281,6 +333,8 @@ footer .wrap { display: flex; gap: 20px; flex-wrap: wrap; justify-content: space
     <div class="tile w2 cyan reveal"><span class="ico" style="background:rgba(46,230,214,.18)">🔐</span><h4>Identifiants au coffre</h4><p>Gardés chiffrés dans le trousseau de ton système, jamais dans un fichier.</p></div>
     <div class="tile w2 reveal" style="--d:.08s"><span class="ico" style="background:rgba(10,132,255,.18)">✍️</span><h4>Mises à jour signées</h4><p>Chaque mise à jour est vérifiée par une signature : une version modifiée est refusée.</p></div>
     <div class="tile w2 pink reveal" style="--d:.16s"><span class="ico" style="background:rgba(255,77,141,.2)">🏦</span><h4>Plusieurs banques</h4><p>Tous tes comptes au même endroit. Ou importe simplement un relevé CSV ou OFX.</p></div>
+    <div class="tile w3 reveal"><span class="ico" style="background:rgba(191,90,242,.2)">🙈</span><h4>Mode discret</h4><p>Un raccourci floute tous les montants : pratique en public ou en partage d'écran. Passe la souris dessus pour les lire.</p></div>
+    <div class="tile w3 cyan reveal" style="--d:.08s"><span class="ico" style="background:rgba(46,230,214,.18)">💾</span><h4>Tes données, à emporter</h4><p>Exporte toutes tes opérations en CSV pour Excel ou Numbers, ou crée une sauvegarde complète en un clic.</p></div>
   </div>
 </section>
 
@@ -288,8 +342,8 @@ footer .wrap { display: flex; gap: 20px; flex-wrap: wrap; justify-content: space
 <section class="wrap modes">
   <div class="center">
     <span class="kicker reveal">Design</span>
-    <h2 class="reveal" style="--d:.08s">Clair ou sombre.<br>Comme ton ordinateur.</h2>
-    <p class="sub reveal" style="--d:.16s">Fais glisser pour comparer.</p>
+    <h2 class="reveal" style="--d:.08s">Clair ou sombre.<br>Comme tu préfères.</h2>
+    <p class="sub reveal" style="--d:.16s">Automatique, clair ou sombre : ça se choisit dans les paramètres. Fais glisser pour comparer.</p>
   </div>
   <div class="compare reveal" id="compare">
     <img src="images/dash.jpg" alt="Budget perso en mode sombre" loading="lazy">
@@ -375,9 +429,22 @@ footer .wrap { display: flex; gap: 20px; flex-wrap: wrap; justify-content: space
   cmp.addEventListener("pointermove", e => drag && setX(e.clientX));
   addEventListener("pointerup", () => drag = false);
 
+  // Essai de couleur d'accentuation (comme dans les paramètres du logiciel)
+  const root = document.documentElement.style;
+  const setAccent = (c1, c2, el) => {
+    root.setProperty("--blue", c1); root.setProperty("--blue2", c2);
+    $$("#accentDots button, #accentDots .rainbow").forEach(b => b.classList.toggle("on", b === el));
+  };
+  $$("#accentDots button").forEach(b => b.onclick = () => { const [a, c] = b.dataset.c.split(","); setAccent(a, c, b); });
+  $("#accentPick").addEventListener("input", e => {
+    const h = e.target.value, n = parseInt(h.slice(1), 16), dk = v => Math.round(v * .78);
+    const c2 = "#" + [n >> 16, (n >> 8) & 255, n & 255].map(v => dk(v).toString(16).padStart(2, "0")).join("");
+    const lab = e.target.parentElement; lab.style.setProperty("--c", h); setAccent(h, c2, lab);
+  });
+
   // ---------- Animations liées au défilement ----------
   const nav = $("#nav"), heroMac = $("#heroMac"), tour = $(".tour"), steps = $$(".tour .step"), dots = $$(".tour .dots i"),
-        shots = $$(".tour .screen img"), zoomMac = $("#zoomMac"), zoomFrame = $("#zoomFrame"), chips = $$(".chip"), glows = $$("[data-par]");
+        shots = $$(".tour .screen img"), zoomMac = $("#zoomMac"), prefMac = $("#prefMac"), prefMac2 = $("#prefMac2"), zoomFrame = $("#zoomFrame"), chips = $$(".chip"), glows = $$("[data-par]");
   let active = 0, ticking = false;
   function frame() {
     ticking = false;
@@ -403,6 +470,10 @@ footer .wrap { display: flex; gap: 20px; flex-wrap: wrap; justify-content: space
     zoomMac.style.transform = `scale(${.82 + .18 * zp}) translateY(${(1 - zp) * 60}px)`;
     zoomMac.style.opacity = .3 + .7 * clamp(zp * 1.6, 0, 1);
     chips.forEach(c => { const f = +c.dataset.fly; c.style.transform = `translate(${f * (1 - zp) * 120}px, ${(1 - zp) * 80}px)`; c.style.opacity = clamp(zp * 2 - .6, 0, 1); });
+    // Paramètres : les deux fenêtres glissent à des vitesses différentes (profondeur)
+    const cs = prefMac.parentElement.getBoundingClientRect(), cp = clamp((H - cs.top) / (H + cs.height), 0, 1);
+    prefMac.style.transform = `perspective(1400px) rotateY(${(1 - cp) * -10}deg) translateY(${(1 - cp) * 50}px)`;
+    prefMac2.style.transform = `translateY(${(.5 - cp) * 140}px)`;
     // Phrase : les mots s'allument un à un
     const wr = words.getBoundingClientRect(), wp = clamp((H * .85 - wr.top) / (wr.height + H * .35), 0, 1);
     const lit = wp * wordEls.length * 1.05;
