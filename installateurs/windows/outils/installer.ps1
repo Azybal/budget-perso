@@ -48,6 +48,26 @@ $vpy = Join-Path $Venv "Scripts\python.exe"
 & $vpy -m pip install --quiet --disable-pip-version-check -r (Join-Path $AppDir "requirements.txt")
 if ($LASTEXITCODE -ne 0) { Write-Host "L'installation des composants a échoué." -ForegroundColor Red; exit 1 }
 
+Etape "Composant d'affichage de la fenêtre (Microsoft Edge WebView2)"
+$wv = $null
+$cle = "Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}"
+foreach ($k in @("HKLM:\SOFTWARE\WOW6432Node\$cle", "HKLM:\SOFTWARE\$cle", "HKCU:\Software\$cle")) {
+    try { $v = (Get-ItemProperty -Path $k -Name pv -ErrorAction Stop).pv; if ($v -and $v -ne "0.0.0.0") { $wv = $v; break } } catch {}
+}
+if ($wv) { Write-Host "WebView2 est présent (version $wv)." }
+else {
+    Write-Host "WebView2 est absent : installation depuis la source officielle (winget)…"
+    try { winget install -e --id Microsoft.EdgeWebView2Runtime --accept-source-agreements --accept-package-agreements }
+    catch { Write-Host "Installe « Microsoft Edge WebView2 Runtime » depuis https://developer.microsoft.com/microsoft-edge/webview2/" -ForegroundColor Yellow }
+}
+
+Etape "Vérification des composants de la fenêtre"
+& $vpy -c "import webview, clr; import webview.platforms.winforms; print('Composants de la fenêtre : OK')"
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "La fenêtre ne pourra pas s'ouvrir : le message d'erreur ci-dessus indique pourquoi (prends-le en photo)." -ForegroundColor Red
+}
+Copy-Item -Force (Join-Path $Src "Depanner.bat") $Base -ErrorAction SilentlyContinue
+
 Etape "Raccourcis (Bureau et menu Démarrer)"
 $pyw    = Join-Path $Venv "Scripts\pythonw.exe"
 $target = Join-Path $AppDir "BudgetPerso.pyw"

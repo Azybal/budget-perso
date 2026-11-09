@@ -9,26 +9,82 @@ connexion aux banques. Tout reste sur cet ordinateur :
   et GitHub pour savoir s'il existe une mise à jour.
 """
 import json
+import logging
 import os
 import secrets
 import subprocess
 import sys
 import threading
+import traceback
 from datetime import datetime
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 MOTEUR = os.path.join(HERE, "moteur")
 sys.path.insert(0, MOTEUR)
 
+
+# --------------------------------------------------------------------------- erreurs visibles
+# Le raccourci lance pythonw.exe (sans console) : sans ceci, une erreur au démarrage ne s'afficherait nulle part.
+JOURNAL = []
+
+
+class _Collecte(logging.Handler):
+    def emit(self, record):
+        JOURNAL.append(self.format(record))
+        del JOURNAL[:-80]
+
+
+_h = _Collecte()
+_h.setFormatter(logging.Formatter("%(name)s %(levelname)s : %(message)s"))
+logging.getLogger().addHandler(_h)
+logging.getLogger("pywebview").setLevel(logging.INFO)
+
+
+def erreur_fatale(titre, detail):
+    """Enregistre l'erreur dans erreur.txt (à côté du programme) et l'affiche dans une fenêtre du système."""
+    chemin = ""
+    for base in (os.path.dirname(HERE), HERE, os.path.expanduser("~")):
+        try:
+            chemin = os.path.join(base, "budget-perso-erreur.txt" if base == os.path.expanduser("~") else "erreur.txt")
+            with open(chemin, "w", encoding="utf-8") as f:
+                f.write(f"Budget perso — {datetime.now():%d/%m/%Y %H:%M}\n{titre}\n\nSystème : {sys.platform}, "
+                        f"Python {sys.version.split()[0]}\n\n{detail}\n")
+            break
+        except OSError:
+            chemin = ""
+    msg = f"{titre}\n\n{detail[-1400:]}\n\n" + (f"Détails enregistrés dans :\n{chemin}" if chemin else "")
+    try:
+        if os.name == "nt":
+            import ctypes
+            ctypes.windll.user32.MessageBoxW(None, msg, "Budget perso", 0x10)
+        elif sys.platform == "darwin":
+            subprocess.run(["osascript", "-e", f"display alert \"Budget perso\" message {json.dumps(msg, ensure_ascii=False)} as critical"],
+                           timeout=900)
+        else:
+            for cmd in (["zenity", "--error", "--title=Budget perso", f"--text={msg}"], ["kdialog", "--error", msg]):
+                try:
+                    subprocess.run(cmd, timeout=900)
+                    break
+                except (FileNotFoundError, OSError):
+                    continue
+    except Exception:  # noqa: BLE001
+        pass
+
+
 # Clé secrète propre à ce lancement : le moteur local ne répond qu'à cette fenêtre.
 TOKEN = secrets.token_urlsafe(32)
 os.environ["BUDGET_TOKEN"] = TOKEN
 
-import core  # noqa: E402
-import server  # noqa: E402  (lit BUDGET_TOKEN à l'import)
-import keyring  # noqa: E402
-import webview  # noqa: E402
-import mise_a_jour  # noqa: E402
+try:
+    import core  # noqa: E402
+    import server  # noqa: E402  (lit BUDGET_TOKEN à l'import)
+    import keyring  # noqa: E402
+    import webview  # noqa: E402
+    import mise_a_jour  # noqa: E402
+except BaseException:  # noqa: BLE001
+    erreur_fatale("Budget perso n'a pas pu démarrer : un composant est manquant ou incompatible.\n"
+                  "Relancer « Installer.bat » règle souvent le problème.", traceback.format_exc())
+    raise SystemExit(1)
 
 SERVICE = "BudgetPerso"
 with open(os.path.join(HERE, "banques.json"), encoding="utf-8") as f:
@@ -338,14 +394,27 @@ def main():
     win.events.loaded += on_loaded
     icone_dock_macos()
     # private_mode : la fenêtre ne garde rien sur le disque (ni cache ni cookies)
-    kwargs = {"private_mode": True, "icon": os.path.join(HERE, "budget.png")}
+    kwargs = {"private_mode": True}
     if sys.platform.startswith("linux"):
         kwargs["gui"] = "qt"
+        kwargs["icon"] = os.path.join(HERE, "budget.png")  # l'icône de fenêtre n'est prise en compte que sous Linux
     webview.start(**kwargs)
     if api._proc and api._proc.poll() is None:
         api._proc.terminate()
     srv.shutdown()
+    if not first["done"]:
+        # La fenêtre s'est fermée sans jamais afficher la page : en général, le composant d'affichage manque
+        aide = ("Sous Windows, il faut « Microsoft Edge WebView2 Runtime » (relancer « Installer.bat » l'installe)."
+                if os.name == "nt" else "Le composant d'affichage de la fenêtre n'a pas pu démarrer.")
+        erreur_fatale("La fenêtre de Budget perso n'a pas pu s'afficher.\n" + aide,
+                      "\n".join(JOURNAL[-40:]) or "Aucun détail fourni par le système.")
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except (KeyboardInterrupt, SystemExit):
+        raise
+    except BaseException:  # noqa: BLE001
+        erreur_fatale("Budget perso s'est arrêté à cause d'une erreur.", "\n".join(JOURNAL[-20:]) + "\n\n" + traceback.format_exc())
+        raise SystemExit(1)

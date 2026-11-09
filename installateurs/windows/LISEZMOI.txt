@@ -14,6 +14,8 @@ INSTALLATION (une seule fois, environ 5 minutes)
      complémentaires » puis « Exécuter quand même » (le logiciel n'est pas signé par un éditeur).
    - Si Python 3.12 n'est pas installé, l'installateur l'installe depuis la source officielle.
 3. Ouvre « Budget perso » depuis le Bureau ou le menu Démarrer.
+Si le logiciel ne s'ouvre pas : double-clique sur « Depanner.bat » (dans ce dossier, ou dans
+%LOCALAPPDATA%\BudgetPerso) ; il le lance en affichant l'erreur éventuelle.
 Le dossier décompressé peut ensuite être supprimé.
 
 

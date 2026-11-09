@@ -82,7 +82,7 @@ La session est gardée sur ton ordinateur pour que ta banque ne redemande pas un
 
 | Système | Fichier | Installation |
 |---|---|---|
-| **Windows 10 / 11** | [Budget-perso-Windows.zip](https://github.com/Azybal/budget-perso/releases/latest/download/Budget-perso-Windows.zip) | Décompresse, puis double-clique sur `Installer.bat`. Si Windows affiche « Windows a protégé votre ordinateur », clique sur *Informations complémentaires* puis *Exécuter quand même*. |
+| **Windows 10 / 11** | [Budget-perso-Windows.zip](https://github.com/Azybal/budget-perso/releases/latest/download/Budget-perso-Windows.zip) | Décompresse, puis double-clique sur `Installer.bat`. Si Windows affiche « Windows a protégé votre ordinateur », clique sur *Informations complémentaires* puis *Exécuter quand même*. Si le logiciel ne s'ouvre pas, double-clique sur `Depanner.bat` : il affiche l'erreur. |
 | **macOS 11 et plus** | [Budget-perso-macOS.zip](https://github.com/Azybal/budget-perso/releases/latest/download/Budget-perso-macOS.zip) | Décompresse, puis fais un clic droit sur `Installer.command` > *Ouvrir*. L'appli s'installe dans le dossier Applications de ton compte. |
 | **Linux** (x86_64, ARM64) | [Budget-perso-Linux.tar.gz](https://github.com/Azybal/budget-perso/releases/latest/download/Budget-perso-Linux.tar.gz) | `tar -xzf Budget-perso-Linux.tar.gz && ./Budget-perso-Linux/installer.sh` |
 
