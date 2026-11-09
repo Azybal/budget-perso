@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Budget perso</title>
+<meta name="description" content="Le budget personnel qui se connecte directement à ta banque. Tes données restent sur ton ordinateur. Windows, macOS, Linux.">
+<link rel="icon" href="images/icone.png">
+<meta name="color-scheme" content="dark">
+<style>
+:root {
+  --bg: #000; --bg2: #0b0b0f; --card: #111116; --line: rgba(255,255,255,.09);
+  --text: #f5f5f7; --muted: #8e8e98; --blue: #0a84ff; --blue2: #0062cc;
+  --violet: #7b5cff; --cyan: #2ee6d6; --pink: #ff4d8d; --green: #32d74b;
+  --ease: cubic-bezier(.22,.9,.24,1);
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI Variable Display", "Segoe UI", Inter, Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--font); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+a { color: inherit; }
+img { display: block; max-width: 100%; }
+.wrap { width: min(1180px, 100% - 32px); margin: 0 auto; }
+
+/* ---------- Barre du haut : verre ---------- */
+nav.top { position: fixed; inset: 0 0 auto; z-index: 50; transition: background .4s, border-color .4s; border-bottom: 1px solid transparent; }
+nav.top.solid { background: rgba(10,10,14,.62); -webkit-backdrop-filter: saturate(180%) blur(20px); backdrop-filter: saturate(180%) blur(20px); border-color: var(--line); }
+nav.top .wrap { display: flex; align-items: center; gap: 28px; height: 60px; }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 650; letter-spacing: -.02em; text-decoration: none; font-size: 17px; }
+.brand img { width: 28px; height: 28px; border-radius: 7px; }
+nav.top .links { display: flex; gap: 24px; margin-left: auto; font-size: 14px; color: var(--muted); }
+nav.top .links a { text-decoration: none; transition: color .2s; } nav.top .links a:hover { color: var(--text); }
+.btn { display: inline-flex; align-items: center; gap: 8px; border-radius: 980px; padding: 10px 20px; font-weight: 600; font-size: 15px;
+  text-decoration: none; background: linear-gradient(180deg, var(--blue), var(--blue2)); color: #fff; border: 0; cursor: pointer;
+  box-shadow: 0 8px 30px rgba(10,132,255,.35); transition: transform .25s var(--ease), box-shadow .25s; }
+.btn:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 12px 40px rgba(10,132,255,.5); }
+.btn.ghost { background: rgba(255,255,255,.08); box-shadow: none; border: 1px solid var(--line); }
+.btn.small { padding: 7px 15px; font-size: 13px; }
+@media (max-width: 760px) { nav.top .links { display: none; } nav.top .wrap { justify-content: space-between; } }
+
+/* ---------- Lueurs de fond (façon Revolut) ---------- */
+.glow { position: absolute; border-radius: 50%; filter: blur(90px); opacity: .55; pointer-events: none; will-change: transform; }
+
+/* ---------- Héros ---------- */
+.hero { position: relative; padding: 150px 0 40px; text-align: center; overflow: hidden; }
+.hero .glow.a { width: 620px; height: 620px; background: var(--blue); top: -220px; left: calc(50% - 560px); }
+.hero .glow.b { width: 520px; height: 520px; background: var(--violet); top: -120px; left: calc(50% + 40px); opacity: .45; }
+.hero .glow.c { width: 420px; height: 420px; background: var(--cyan); top: 380px; left: calc(50% - 210px); opacity: .18; }
+.eyebrow { display: inline-flex; gap: 8px; align-items: center; font-size: 13px; font-weight: 600; color: #cfe3ff; padding: 6px 14px;
+  border-radius: 980px; background: rgba(10,132,255,.14); border: 1px solid rgba(10,132,255,.35); }
+.eyebrow i { width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 10px var(--green); }
+h1 { font-size: clamp(46px, 8.4vw, 112px); line-height: .98; letter-spacing: -.055em; font-weight: 750; margin: 22px auto 0; max-width: 11ch; }
+h1 .grad { background: linear-gradient(100deg, #fff 0%, #9fd0ff 35%, #8f7bff 70%, #ff8fc0 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.lead { font-size: clamp(18px, 2.1vw, 23px); color: #b8b8c2; max-width: 640px; margin: 24px auto 0; line-height: 1.45; letter-spacing: -.01em; }
+.ctas { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 34px; }
+.os-note { font-size: 13px; color: var(--muted); margin-top: 14px; }
+
+/* Fenêtre Mac (cadre des captures) */
+.stage { perspective: 1600px; margin-top: 70px; }
+.mac { position: relative; border-radius: 16px; overflow: hidden; background: #000; border: 1px solid rgba(255,255,255,.14);
+  box-shadow: 0 40px 120px rgba(0,0,0,.7), 0 0 0 1px rgba(0,0,0,.6), 0 0 120px rgba(10,132,255,.18); transform-origin: 50% 0; will-change: transform; }
+.mac .bar { height: 30px; display: flex; align-items: center; gap: 7px; padding: 0 12px; background: #16161b; border-bottom: 1px solid rgba(255,255,255,.06); }
+.mac .bar i { width: 11px; height: 11px; border-radius: 50%; background: #ff5f57; } .mac .bar i:nth-child(2) { background: #febc2e; } .mac .bar i:nth-child(3) { background: #28c840; }
+.mac .screen { position: relative; aspect-ratio: 1320 / 860; background: #000; }
+.mac .screen img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top; }
+.hero .mac { width: min(1100px, 100%); margin: 0 auto; }
+
+/* ---------- Titres de section ---------- */
+section { position: relative; }
+.kicker { font-size: 15px; font-weight: 650; letter-spacing: .01em; background: linear-gradient(90deg, var(--blue), var(--violet)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+h2 { font-size: clamp(36px, 5.6vw, 72px); line-height: 1.02; letter-spacing: -.045em; font-weight: 720; margin: 10px 0 0; }
+.sub { color: var(--muted); font-size: clamp(17px, 1.7vw, 21px); line-height: 1.5; max-width: 620px; margin-top: 18px; }
+.center { text-align: center; } .center .sub { margin-left: auto; margin-right: auto; }
+
+/* Apparition au défilement */
+.reveal { opacity: 0; transform: translateY(46px) scale(.98); filter: blur(10px); transition: opacity 1s var(--ease), transform 1s var(--ease), filter 1s var(--ease); transition-delay: var(--d, 0s); }
+.reveal.in { opacity: 1; transform: none; filter: none; }
+
+/* ---------- Chiffres ---------- */
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; padding: 110px 0 40px; }
+.stat { text-align: center; }
+.stat b { display: block; font-size: clamp(48px, 7vw, 92px); letter-spacing: -.05em; font-weight: 750; line-height: 1;
+  background: linear-gradient(180deg, #fff, #8a8a96); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.stat span { color: var(--muted); font-size: 16px; display: block; margin-top: 10px; }
+@media (max-width: 640px) { .stats { grid-template-columns: 1fr; gap: 40px; } }
+
+/* ---------- Visite guidée : texte qui défile, fenêtre fixe (façon Apple) ---------- */
+.tour { height: calc(var(--n) * 90vh + 30vh); margin-top: 80px; }
+.tour .sticky { position: sticky; top: 0; height: 100vh; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 8fr); gap: 56px; align-items: center; }
+.tour .steps { position: relative; height: 340px; }
+.tour .step { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; opacity: 0; transform: translateY(40px); filter: blur(8px);
+  transition: opacity .7s var(--ease), transform .7s var(--ease), filter .7s var(--ease); pointer-events: none; }
+.tour .step.on { opacity: 1; transform: none; filter: none; }
+.tour .step.past { transform: translateY(-40px); }
+.tour .step h3 { font-size: clamp(30px, 3.8vw, 50px); letter-spacing: -.04em; line-height: 1.05; margin: 10px 0 0; font-weight: 720; }
+.tour .step p { color: #a9a9b4; font-size: 18px; line-height: 1.55; margin: 16px 0 0; }
+.tour .dots { display: flex; gap: 8px; margin-top: 30px; }
+.tour .dots i { width: 8px; height: 8px; border-radius: 8px; background: rgba(255,255,255,.18); transition: width .5s var(--ease), background .5s; }
+.tour .dots i.on { width: 28px; background: var(--blue); }
+.tour .mac .screen img { opacity: 0; transform: scale(1.04); transition: opacity .8s var(--ease), transform 1.2s var(--ease); }
+.tour .mac .screen img.on { opacity: 1; transform: none; }
+.tour .glow { width: 560px; height: 560px; right: -120px; top: 20%; background: var(--violet); opacity: .25; }
+@media (max-width: 860px) {
+  .tour .sticky { grid-template-columns: 1fr; gap: 18px; align-content: center; }
+  .tour .steps { height: 230px; order: 2; } .tour .step p { font-size: 16px; }
+}
+
+/* ---------- Phrase qui s'allume mot à mot ---------- */
+.statement { padding: 160px 0; }
+.statement p { font-size: clamp(34px, 5.4vw, 70px); line-height: 1.08; letter-spacing: -.045em; font-weight: 720; margin: 0; max-width: 17ch; }
+.statement p span { opacity: .14; transition: opacity .25s linear; }
+.statement .glow { width: 500px; height: 500px; background: var(--blue); left: -200px; top: 30%; opacity: .2; }
+
+/* ---------- Mosaïque de cartes (façon Revolut) ---------- */
+.bento { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; margin-top: 56px; }
+.tile { position: relative; overflow: hidden; border-radius: 28px; padding: 30px; background: var(--card); border: 1px solid var(--line); min-height: 250px;
+  display: flex; flex-direction: column; justify-content: flex-end; transition: transform .5s var(--ease), border-color .5s; }
+.tile:hover { transform: translateY(-4px); border-color: rgba(255,255,255,.18); }
+.tile h4 { font-size: 24px; letter-spacing: -.03em; margin: 0; font-weight: 700; position: relative; }
+.tile p { color: #a7a7b2; margin: 10px 0 0; font-size: 15.5px; line-height: 1.5; position: relative; }
+.tile .ico { position: absolute; top: 26px; left: 30px; width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; font-size: 22px; }
+.tile.w3 { grid-column: span 3; } .tile.w2 { grid-column: span 2; } .tile.w4 { grid-column: span 4; }
+.tile.blue { background: radial-gradient(120% 120% at 0% 0%, #1b5fff 0%, #0b2a7a 45%, #0b0b14 100%); }
+.tile.violet { background: radial-gradient(120% 120% at 100% 0%, #7b5cff 0%, #2a1a6b 45%, #0d0b14 100%); }
+.tile.cyan { background: radial-gradient(120% 120% at 100% 100%, #13b5a8 0%, #0b3d3a 45%, #0a0f10 100%); }
+.tile.pink { background: radial-gradient(120% 120% at 0% 100%, #ff4d8d 0%, #6b1a3a 45%, #120a0d 100%); }
+.tile .big { font-size: 64px; font-weight: 750; letter-spacing: -.05em; line-height: 1; margin-bottom: auto; position: relative; }
+.tile .shot { position: absolute; right: -36px; bottom: -40px; width: 54%; border-radius: 14px; border: 1px solid rgba(255,255,255,.14);
+  box-shadow: 0 20px 60px rgba(0,0,0,.6); transform: rotate(-4deg); transition: transform .8s var(--ease); }
+.tile:hover .shot { transform: rotate(-2deg) translateY(-6px); }
+.tile.with-shot { justify-content: flex-start; min-height: 360px; } .tile.with-shot h4, .tile.with-shot p { max-width: 42%; position: relative; z-index: 1; }
+@media (max-width: 900px) { .bento { grid-template-columns: 1fr 1fr; } .tile.w3, .tile.w2, .tile.w4 { grid-column: span 2; } .tile.with-shot h4, .tile.with-shot p { max-width: none; } .tile.with-shot { min-height: 460px; } .tile .shot { width: 92%; } }
+
+/* ---------- Zoom sur la fenêtre de détail ---------- */
+.zoom { padding: 150px 0 60px; }
+.zoom .frame { position: relative; margin-top: 60px; }
+.zoom .mac { width: min(1100px, 100%); margin: 0 auto; will-change: transform; }
+.chip { position: absolute; padding: 9px 16px; border-radius: 980px; font-size: 14px; font-weight: 600; white-space: nowrap;
+  background: rgba(20,20,28,.72); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,.14);
+  box-shadow: 0 12px 40px rgba(0,0,0,.5); will-change: transform; }
+.chip b { color: var(--blue); }
+@media (max-width: 760px) { .chip { display: none; } }
+
+/* ---------- Clair / sombre ---------- */
+.modes { padding: 140px 0; }
+.compare { position: relative; margin-top: 56px; border-radius: 22px; overflow: hidden; border: 1px solid var(--line); aspect-ratio: 1320 / 860; user-select: none; touch-action: pan-y; }
+.compare img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top; }
+.compare .light { clip-path: inset(0 0 0 var(--x, 50%)); }
+.compare .handle { position: absolute; top: 0; bottom: 0; left: var(--x, 50%); width: 2px; background: #fff; box-shadow: 0 0 20px rgba(0,0,0,.5); }
+.compare .handle::after { content: "⟷"; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 44px; height: 44px; border-radius: 50%;
+  background: #fff; color: #000; display: grid; place-items: center; font-size: 18px; box-shadow: 0 6px 20px rgba(0,0,0,.4); }
+
+/* ---------- Banques : bandeau qui défile ---------- */
+.banks { padding: 120px 0 40px; overflow: hidden; }
+.marquee { display: flex; gap: 12px; width: max-content; animation: marquee 50s linear infinite; margin-top: 14px; }
+.marquee.rev { animation-direction: reverse; animation-duration: 60s; }
+.marquee span { padding: 14px 22px; border-radius: 18px; background: var(--card); border: 1px solid var(--line); font-weight: 600; font-size: 16px; white-space: nowrap; }
+@keyframes marquee { to { transform: translateX(-50%); } }
+.banks .rows { margin-top: 50px; -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent); mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent); }
+
+/* ---------- Téléchargement ---------- */
+.download { padding: 150px 0 120px; overflow: hidden; }
+.download .glow.a { width: 700px; height: 700px; background: var(--blue); left: calc(50% - 350px); top: 10%; opacity: .25; }
+.dl { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 56px; }
+.dl a { position: relative; text-decoration: none; border-radius: 26px; padding: 30px; background: rgba(17,17,22,.8); border: 1px solid var(--line);
+  -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); transition: transform .4s var(--ease), border-color .4s, box-shadow .4s; }
+.dl a:hover { transform: translateY(-6px); border-color: rgba(10,132,255,.6); box-shadow: 0 20px 60px rgba(10,132,255,.2); }
+.dl a.mine { border-color: rgba(10,132,255,.7); box-shadow: 0 0 0 1px rgba(10,132,255,.4), 0 20px 60px rgba(10,132,255,.25); }
+.dl .os { font-size: 30px; font-weight: 720; letter-spacing: -.03em; }
+.dl .req { color: var(--muted); font-size: 14px; margin-top: 6px; }
+.dl .get { margin-top: 26px; display: inline-flex; color: var(--blue); font-weight: 650; font-size: 15px; }
+.dl .tag { position: absolute; top: 18px; right: 18px; font-size: 12px; font-weight: 650; color: #cfe3ff; background: rgba(10,132,255,.22); padding: 4px 10px; border-radius: 980px; display: none; }
+.dl a.mine .tag { display: block; }
+@media (max-width: 760px) { .dl { grid-template-columns: 1fr; } }
+
+footer { border-top: 1px solid var(--line); padding: 40px 0 60px; color: var(--muted); font-size: 13px; }
+footer .wrap { display: flex; gap: 20px; flex-wrap: wrap; justify-content: space-between; }
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal, .tour .step, .tour .mac .screen img { transition: none; filter: none; }
+  .marquee { animation: none; flex-wrap: wrap; width: auto; }
+}
+</style>
+</head>
+<body>
+
+<nav class="top" id="nav">
+  <div class="wrap">
+    <a class="brand" href="#"><img src="images/icone.png" alt="">Budget perso</a>
+    <div class="links"><a href="#fonctions">Fonctions</a><a href="#confidentialite">Confidentialité</a><a href="#banques">Banques</a></div>
+    <a class="btn small" href="#telecharger">Télécharger</a>
+  </div>
+</nav>
+
+<!-- ===================== HÉROS ===================== -->
+<header class="hero">
+  <div class="glow a" data-par="-.25"></div><div class="glow b" data-par="-.15"></div><div class="glow c" data-par="-.35"></div>
+  <div class="wrap">
+    <span class="eyebrow reveal"><i></i> Gratuit · Windows, macOS et Linux</span>
+    <h1 class="reveal" style="--d:.08s">Ton budget. <span class="grad">Enfin clair.</span></h1>
+    <p class="lead reveal" style="--d:.16s">Connecte ta banque, et Budget perso calcule ce qu'il te restera à la fin du mois, suit tes abonnements, tes crédits et tes budgets. Tes données ne quittent jamais ton ordinateur.</p>
+    <div class="ctas reveal" style="--d:.24s"><a class="btn" href="#telecharger">Télécharger gratuitement</a><a class="btn ghost" href="#fonctions">Découvrir</a></div>
+    <div class="stage">
+      <div class="mac" id="heroMac">
+        <div class="bar"><i></i><i></i><i></i></div>
+        <div class="screen"><img src="images/dash.jpg" alt="Tableau de bord de Budget perso : solde actuel, dépenses du mois et prévision de fin de mois"></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ===================== CHIFFRES ===================== -->
+<section class="wrap stats">
+  <div class="stat reveal"><b data-count="24">24</b><span>banques françaises</span></div>
+  <div class="stat reveal" style="--d:.1s"><b data-count="0" data-suffix="">0</b><span>serveur, compte ou publicité</span></div>
+  <div class="stat reveal" style="--d:.2s"><b data-count="100" data-suffix=" %">100 %</b><span>sur ton ordinateur</span></div>
+</section>
+
+<!-- ===================== VISITE GUIDÉE ===================== -->
+<section class="tour" id="fonctions" style="--n:5">
+  <div class="glow"></div>
+  <div class="sticky wrap">
+    <div>
+      <div class="steps">
+        <div class="step on"><span class="kicker">Tableau de bord</span><h3>Tout ton mois, d'un seul coup d'œil.</h3>
+          <p>Ton solde en grand, ce que tu as dépensé depuis ta dernière paie, tes rentrées, tes abonnements et ce qui va bientôt passer.</p></div>
+        <div class="step"><span class="kicker">Solde prévisionnel</span><h3>Sache ce qu'il te restera. Avant la fin du mois.</h3>
+          <p>Prélèvements, crédits, salaire attendu et opérations annoncées par ta banque : le solde de fin de mois est calculé pour toi, et même celui de la veille de ta paie.</p></div>
+        <div class="step"><span class="kicker">Budget</span><h3>Un budget par catégorie. Rempli tout seul.</h3>
+          <p>Fixe un montant pour les courses, les sorties ou le transport : chaque dépense vient remplir sa ligne, et tu vois tout de suite ce qu'il te reste.</p></div>
+        <div class="step"><span class="kicker">Mensualités</span><h3>Plus aucun abonnement oublié.</h3>
+          <p>Abonnements, charges fixes et rentrées régulières, avec le dernier paiement et le prochain. Un abonnement sans paiement depuis deux mois passe en « arrêté ».</p></div>
+        <div class="step"><span class="kicker">Crédits</span><h3>Tes crédits, jusqu'à la dernière échéance.</h3>
+          <p>Reste à rembourser, mensualités restantes et date de fin. Les échéances sont déduites automatiquement. Et l'argent qu'on te doit est suivi aussi.</p></div>
+      </div>
+      <div class="dots"><i class="on"></i><i></i><i></i><i></i><i></i></div>
+    </div>
+    <div class="mac">
+      <div class="bar"><i></i><i></i><i></i></div>
+      <div class="screen">
+        <img class="on" src="images/dash.jpg" alt="Tableau de bord">
+        <img src="images/solde.jpg" alt="Solde prévisionnel" loading="lazy">
+        <img src="images/budget.jpg" alt="Budget par catégorie" loading="lazy">
+        <img src="images/subs.jpg" alt="Mensualités" loading="lazy">
+        <img src="images/credits.jpg" alt="Crédits" loading="lazy">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== ZOOM : FENÊTRE DE DÉTAIL ===================== -->
+<section class="zoom">
+  <div class="wrap center">
+    <span class="kicker reveal">Classement automatique</span>
+    <h2 class="reveal" style="--d:.08s">Range une dépense une fois.<br>Les suivantes suivent.</h2>
+    <p class="sub reveal" style="--d:.16s">Clique sur une catégorie pour voir ses dépenses du mois. Ajoute un marchand ou un mot-clé : toutes ses prochaines dépenses y iront toutes seules.</p>
+  </div>
+  <div class="wrap frame" id="zoomFrame">
+    <div class="mac" id="zoomMac"><div class="bar"><i></i><i></i><i></i></div><div class="screen"><img src="images/detail.jpg" alt="Fenêtre de détail d'une catégorie de budget" loading="lazy"></div></div>
+    <div class="chip" style="left:2%;top:18%" data-fly="-1">« LIDL » → <b>Courses</b></div>
+    <div class="chip" style="right:1%;top:34%" data-fly="1">« UBER EATS » → <b>Sorties</b></div>
+    <div class="chip" style="left:6%;bottom:16%" data-fly="-1.4">« TOTAL » → <b>Transport</b></div>
+  </div>
+</section>
+
+<!-- ===================== PHRASE ===================== -->
+<section class="statement" id="confidentialite">
+  <div class="glow"></div>
+  <div class="wrap"><p id="words">Pas de serveur. Pas de compte. Pas de pub. Tes comptes restent sur ton ordinateur, et personne d'autre que toi ne les voit.</p></div>
+</section>
+
+<!-- ===================== MOSAÏQUE ===================== -->
+<section class="wrap">
+  <span class="kicker reveal">Confidentialité</span>
+  <h2 class="reveal" style="--d:.08s">Privé par conception.</h2>
+  <div class="bento">
+    <div class="tile w4 blue with-shot reveal"><h4>Connexion directe à ta banque</h4>
+      <p>Ton ordinateur se connecte lui-même au site de ta banque, sans agrégateur ni intermédiaire. Code SMS ou validation dans l'appli : c'est pris en charge.</p>
+      <img class="shot" src="images/solde.jpg" alt="" loading="lazy"></div>
+    <div class="tile w2 violet reveal" style="--d:.08s"><div class="big">0</div><h4>donnée envoyée</h4><p>Ni à l'auteur, ni à un serveur, ni à personne.</p></div>
+    <div class="tile w2 cyan reveal"><span class="ico" style="background:rgba(46,230,214,.18)">🔐</span><h4>Identifiants au coffre</h4><p>Gardés chiffrés dans le trousseau de ton système, jamais dans un fichier.</p></div>
+    <div class="tile w2 reveal" style="--d:.08s"><span class="ico" style="background:rgba(10,132,255,.18)">✍️</span><h4>Mises à jour signées</h4><p>Chaque mise à jour est vérifiée par une signature : une version modifiée est refusée.</p></div>
+    <div class="tile w2 pink reveal" style="--d:.16s"><span class="ico" style="background:rgba(255,77,141,.2)">🏦</span><h4>Plusieurs banques</h4><p>Tous tes comptes au même endroit. Ou importe simplement un relevé CSV ou OFX.</p></div>
+  </div>
+</section>
+
+<!-- ===================== CLAIR / SOMBRE ===================== -->
+<section class="wrap modes">
+  <div class="center">
+    <span class="kicker reveal">Design</span>
+    <h2 class="reveal" style="--d:.08s">Clair ou sombre.<br>Comme ton ordinateur.</h2>
+    <p class="sub reveal" style="--d:.16s">Fais glisser pour comparer.</p>
+  </div>
+  <div class="compare reveal" id="compare">
+    <img src="images/dash.jpg" alt="Budget perso en mode sombre" loading="lazy">
+    <img class="light" src="images/dash-clair.jpg" alt="Budget perso en mode clair" loading="lazy">
+    <div class="handle"></div>
+  </div>
+</section>
+
+<!-- ===================== BANQUES ===================== -->
+<section class="banks" id="banques">
+  <div class="wrap center">
+    <span class="kicker reveal">Banques</span>
+    <h2 class="reveal" style="--d:.08s">Ta banque est sûrement là.</h2>
+  </div>
+  <div class="rows">
+    <div class="marquee" id="m1"></div>
+    <div class="marquee rev" id="m2"></div>
+  </div>
+</section>
+
+<!-- ===================== TÉLÉCHARGER ===================== -->
+<section class="download" id="telecharger">
+  <div class="glow a"></div>
+  <div class="wrap center">
+    <span class="kicker reveal">Gratuit</span>
+    <h2 class="reveal" style="--d:.08s">Prêt en cinq minutes.</h2>
+    <p class="sub reveal" style="--d:.16s">Télécharge, lance l'installateur, connecte ta banque. Les mises à jour arrivent ensuite toutes seules.</p>
+    <div class="dl">
+      <a class="reveal" data-os="win" href="https://github.com/Azybal/budget-perso/releases/latest/download/Budget-perso-Windows.zip"><span class="tag">Ton système</span><div class="os">Windows</div><div class="req">Windows 10 et 11</div><span class="get">Télécharger ↓</span></a>
+      <a class="reveal" style="--d:.08s" data-os="mac" href="https://github.com/Azybal/budget-perso/releases/latest/download/Budget-perso-macOS.zip"><span class="tag">Ton système</span><div class="os">macOS</div><div class="req">macOS 11 et plus</div><span class="get">Télécharger ↓</span></a>
+      <a class="reveal" style="--d:.16s" data-os="linux" href="https://github.com/Azybal/budget-perso/releases/latest/download/Budget-perso-Linux.tar.gz"><span class="tag">Ton système</span><div class="os">Linux</div><div class="req">x86_64 et ARM64</div><span class="get">Télécharger ↓</span></a>
+    </div>
+  </div>
+</section>
+
+<footer><div class="wrap"><span>Budget perso · logiciel libre de budget personnel</span><a href="https://github.com/Azybal/budget-perso">Code source sur GitHub</a></div></footer>
+
+<script>
+(() => {
+  const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const vh = () => innerHeight;
+
+  // Banques (bandeaux)
+  const BANKS = ["Crédit Agricole", "BNP Paribas", "Hello bank!", "Société Générale", "LCL", "Crédit Mutuel", "CIC", "Caisse d'Épargne",
+    "Banque Populaire", "La Banque Postale", "BoursoBank", "Fortuneo", "BRED", "Crédit Coopératif", "Crédit Mutuel de Bretagne",
+    "Crédit Mutuel du Sud-Ouest", "AXA Banque", "BforBank", "Allianz Banque", "CCF", "N26", "Orange Bank", "Ma French Bank", "La Nef"];
+  const half = Math.ceil(BANKS.length / 2);
+  const fill = (el, list) => el.innerHTML = [...list, ...list].map(b => `<span>${b}</span>`).join("");
+  fill($("#m1"), BANKS.slice(0, half)); fill($("#m2"), BANKS.slice(half));
+
+  // Phrase mot à mot
+  const words = $("#words");
+  words.innerHTML = words.textContent.split(" ").map(w => `<span>${w}</span>`).join(" ");
+  const wordEls = [...words.children];
+
+  // Système du visiteur
+  const ua = navigator.userAgent;
+  const os = /Windows/.test(ua) ? "win" : /Mac/.test(ua) ? "mac" : /Linux|X11/.test(ua) && !/Android/.test(ua) ? "linux" : null;
+  if (os) { const a = $(`.dl a[data-os="${os}"]`); if (a) a.classList.add("mine"); }
+
+  // Apparitions
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }), { threshold: .14 });
+  $$(".reveal").forEach(el => reduced ? el.classList.add("in") : io.observe(el));
+
+  // Compteurs
+  const co = new IntersectionObserver(es => es.forEach(e => {
+    if (!e.isIntersecting) return;
+    co.unobserve(e.target);
+    const el = e.target, to = +el.dataset.count, suf = el.dataset.suffix || "", t0 = performance.now(), dur = reduced ? 0 : 1400;
+    const tick = t => { const p = dur ? clamp((t - t0) / dur, 0, 1) : 1; el.textContent = Math.round(to * (1 - Math.pow(1 - p, 3))) + suf; if (p < 1) requestAnimationFrame(tick); };
+    requestAnimationFrame(tick);
+  }), { threshold: .6 });
+  // Les vrais chiffres sont dans la page ; on ne repart de 0 que pour ceux encore hors de l'écran (ils comptent en arrivant)
+  if (!reduced) $$("[data-count]").forEach(el => { if (el.getBoundingClientRect().top > innerHeight) el.textContent = "0" + (el.dataset.suffix || ""); co.observe(el); });
+
+  // Comparaison clair / sombre
+  const cmp = $("#compare");
+  const setX = x => { const r = cmp.getBoundingClientRect(); cmp.style.setProperty("--x", clamp((x - r.left) / r.width * 100, 0, 100) + "%"); };
+  let drag = false;
+  cmp.addEventListener("pointerdown", e => { drag = true; cmp.setPointerCapture(e.pointerId); setX(e.clientX); });
+  cmp.addEventListener("pointermove", e => drag && setX(e.clientX));
+  addEventListener("pointerup", () => drag = false);
+
+  // ---------- Animations liées au défilement ----------
+  const nav = $("#nav"), heroMac = $("#heroMac"), tour = $(".tour"), steps = $$(".tour .step"), dots = $$(".tour .dots i"),
+        shots = $$(".tour .screen img"), zoomMac = $("#zoomMac"), zoomFrame = $("#zoomFrame"), chips = $$(".chip"), glows = $$("[data-par]");
+  let active = 0, ticking = false;
+  function frame() {
+    ticking = false;
+    const y = scrollY, H = vh();
+    nav.classList.toggle("solid", y > 20);
+    if (reduced) return;
+    // Héros : la fenêtre se redresse et grandit
+    const p = clamp(y / (H * .75), 0, 1);
+    heroMac.style.transform = `rotateX(${(1 - p) * 24}deg) scale(${.88 + .12 * p}) translateY(${(1 - p) * 30}px)`;
+    glows.forEach(g => g.style.transform = `translateY(${y * g.dataset.par}px)`);
+    // Visite guidée
+    const tr = tour.getBoundingClientRect(), span = tr.height - H;
+    const tp = clamp(-tr.top / span, 0, .9999);
+    const i = Math.floor(tp * steps.length);
+    if (i !== active) {
+      steps.forEach((s, k) => { s.classList.toggle("on", k === i); s.classList.toggle("past", k < i); });
+      dots.forEach((d, k) => d.classList.toggle("on", k === i));
+      shots.forEach((s, k) => s.classList.toggle("on", k === i));
+      active = i;
+    }
+    // Zoom : la fenêtre grandit en arrivant, les étiquettes s'écartent
+    const zr = zoomFrame.getBoundingClientRect(), zp = clamp((H - zr.top) / (H + zr.height * .5), 0, 1);
+    zoomMac.style.transform = `scale(${.82 + .18 * zp}) translateY(${(1 - zp) * 60}px)`;
+    zoomMac.style.opacity = .3 + .7 * clamp(zp * 1.6, 0, 1);
+    chips.forEach(c => { const f = +c.dataset.fly; c.style.transform = `translate(${f * (1 - zp) * 120}px, ${(1 - zp) * 80}px)`; c.style.opacity = clamp(zp * 2 - .6, 0, 1); });
+    // Phrase : les mots s'allument un à un
+    const wr = words.getBoundingClientRect(), wp = clamp((H * .85 - wr.top) / (wr.height + H * .35), 0, 1);
+    const lit = wp * wordEls.length * 1.05;
+    wordEls.forEach((w, k) => w.style.opacity = clamp(lit - k, .14, 1));
+  }
+  addEventListener("scroll", () => { if (!ticking) { ticking = true; requestAnimationFrame(frame); } }, { passive: true });
+  addEventListener("resize", frame);
+  frame();
+  if (reduced) wordEls.forEach(w => w.style.opacity = 1);
+})();
+</script>
+</body>
+</html>
