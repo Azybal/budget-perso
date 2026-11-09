@@ -819,6 +819,8 @@ def _sub_next(sub, last_d, today):
 def subscription_list(conn, today=None):
     """Liste de référence (abonnements, charges fixes, rentrées régulières), confrontée aux opérations."""
     today = today or date.today()
+    # Délai sans paiement avant « arrêté » : réglage de l'utilisateur (2 mois par défaut = 61 jours)
+    stop_days = int(round(30.5 * int(get_setting(conn, "arret_abonnement_mois") or 2)))
     rows = conn.execute("SELECT date, label, merchant, amount FROM transactions WHERE date >= ? ORDER BY date",
                         ((today - timedelta(days=400)).isoformat(),)).fetchall()
     out = []
@@ -833,7 +835,7 @@ def subscription_list(conn, today=None):
             if last_d and sub["cancelled_on"] and last_d > date.fromisoformat(sub["cancelled_on"]):
                 alerte = f"Encore prélevé le {last_d.strftime('%d/%m')} après la résiliation"
         elif last_d:
-            limit = STOP_AFTER_DAYS if freq in ("hebdomadaire", "4 semaines", "mensuel") else PERIOD_DAYS[freq] + STOP_AFTER_DAYS
+            limit = stop_days if freq in ("hebdomadaire", "4 semaines", "mensuel") else PERIOD_DAYS[freq] + stop_days
             if (today - last_d).days > limit:
                 status = "arrete"
         nxt = _sub_next(sub, last_d, today) if status == "actif" else None
@@ -952,7 +954,37 @@ SETTINGS_DEFAULTS = {
     "estimation_depenses": "habitudes",
     "budget_quotidien_mensuel": "800",
     "jour_debut_mois": "1",
+    "theme": "auto",  # apparence : « auto » (comme l'ordinateur), « clair » ou « sombre »
+    # Paramètres de l'interface (fenêtre Paramètres)
+    "accent": "bleu",
+    "taille_texte": "normale",
+    "animations": "oui",
+    "effet_verre": "oui",
+    "centimes": "oui",
+    "depenses_rouge": "oui",
+    "mode_discret": "non",
+    "onglet_demarrage": "dash",
+    "prenom": "",
+    "seuil_alerte_budget": "90",
+    "alerte_solde_bas": "",
+    "prelevements_affiches": "8",
+    "arret_abonnement_mois": "2",  # règle de l'utilisateur : plus de 2 mois sans paiement = arrêté (réglable)
+    "sync_auto": "6h",
 }
+SETTING_CHOICES = {
+    "estimation_depenses": ("aucune", "habitudes", "budget"),
+    "theme": ("auto", "clair", "sombre"),
+    "accent": ("bleu", "violet", "rose", "orange", "vert", "graphite"),
+    "taille_texte": ("petite", "normale", "grande"),
+    "animations": ("oui", "non"), "effet_verre": ("oui", "non"), "centimes": ("oui", "non"),
+    "depenses_rouge": ("oui", "non"), "mode_discret": ("oui", "non"),
+    "onglet_demarrage": ("dash", "solde", "budget", "subs", "credits"),
+    "prelevements_affiches": ("5", "8", "12", "20"),
+    "arret_abonnement_mois": ("1", "2", "3", "6"),
+    "sync_auto": ("off", "6h", "ouverture"),
+}
+DISPLAY_SETTINGS = ("theme", "accent", "taille_texte", "animations", "effet_verre", "centimes", "depenses_rouge",
+                    "mode_discret", "prelevements_affiches")
 
 
 def get_setting(conn, key):
@@ -965,6 +997,18 @@ def set_setting(conn, key, value):
         raise ValueError("Réglage inconnu : " + key)
     if key == "estimation_depenses" and value not in ("aucune", "habitudes", "budget"):
         raise ValueError("Mode d'estimation inconnu")
+    if key == "accent" and re.fullmatch(r"#[0-9a-fA-F]{6}", str(value)):
+        value = str(value).lower()  # couleur personnalisée choisie sur la roue des couleurs
+    elif key in SETTING_CHOICES and str(value) not in SETTING_CHOICES[key]:
+        raise ValueError(f"Valeur inconnue pour « {key} »")
+    if key == "prenom":
+        value = " ".join(str(value or "").split())[:30]
+    if key == "seuil_alerte_budget":
+        value = str(int(float(value)))
+        if not 50 <= int(value) <= 100:
+            raise ValueError("Le seuil d'alerte doit être entre 50 et 100 %.")
+    if key == "alerte_solde_bas":
+        value = "" if str(value).strip() == "" else str(round(float(str(value).replace(",", ".")), 2))
     if key == "budget_quotidien_mensuel":
         value = str(abs(float(value)))
     if key == "jour_debut_mois":
@@ -1738,6 +1782,66 @@ def set_budget(conn, category, monthly_limit):
         conn.execute("INSERT INTO budget_categories(name, monthly_limit, position) VALUES (?, ?, ?)",
                      (category, lim, pos))
     conn.commit()
+
+
+def reset_settings(conn, keys):
+    """Remet des réglages à leur valeur par défaut (seulement ceux de l'affichage)."""
+    keys = [k for k in keys if k in DISPLAY_SETTINGS]
+    conn.executemany("DELETE FROM settings WHERE key = ?", [(k,) for k in keys])
+    conn.commit()
+    return {"reinitialises": keys}
+
+
+def about(conn):
+    """Chiffres pour la page « À propos » des paramètres."""
+    r = conn.execute("SELECT COUNT(*) n, MIN(date) a, MAX(date) b FROM transactions").fetchone()
+    try:
+        size = os.path.getsize(DB_PATH)
+    except OSError:
+        size = 0
+    return {"operations": r["n"], "premiere": r["a"], "derniere": r["b"],
+            "comptes": conn.execute("SELECT COUNT(*) FROM accounts").fetchone()[0],
+            "mensualites": conn.execute("SELECT COUNT(*) FROM manual_subscriptions").fetchone()[0],
+            "credits": conn.execute("SELECT COUNT(*) FROM loans").fetchone()[0],
+            "regles": conn.execute("SELECT COUNT(*) FROM rules").fetchone()[0],
+            "taille_ko": round(size / 1024)}
+
+
+def _target(path, ext):
+    path = os.path.abspath(os.path.expanduser(str(path or "")))
+    if not path.lower().endswith(ext):
+        path += ext
+    if not os.path.isdir(os.path.dirname(path)):
+        raise ValueError("Dossier introuvable.")
+    if os.path.commonpath([path, os.path.dirname(DB_PATH)]) == os.path.dirname(DB_PATH):
+        raise ValueError("Choisis un autre dossier que celui des données du logiciel.")
+    return path
+
+
+def export_csv(conn, path):
+    """Exporte toutes les opérations dans un fichier CSV (séparateur « ; », lisible par Excel et Numbers)."""
+    path = _target(path, ".csv")
+    rows = conn.execute("SELECT t.date, a.name, t.label, t.merchant, t.category, t.amount, t.note FROM transactions t "
+                        "JOIN accounts a ON a.id = t.account_id ORDER BY t.date, t.id").fetchall()
+    with open(path, "w", encoding="utf-8-sig", newline="") as f:
+        w = csv.writer(f, delimiter=";")
+        w.writerow(["Date", "Compte", "Libellé", "Marchand", "Catégorie", "Montant", "Note"])
+        for r in rows:
+            w.writerow([r[0], r[1], r[2], r[3], r[4], f"{r[5]:.2f}".replace(".", ","), r[6] or ""])
+    return {"fichier": os.path.basename(path), "operations": len(rows)}
+
+
+def backup_db(conn, path):
+    """Copie complète et cohérente de la base (sauvegarde)."""
+    path = _target(path, ".db")
+    if os.path.exists(path):
+        os.remove(path)  # remplacement confirmé par la fenêtre d'enregistrement du système
+    dst = sqlite3.connect(path)
+    try:
+        conn.backup(dst)
+    finally:
+        dst.close()
+    return {"fichier": os.path.basename(path), "taille_ko": round(os.path.getsize(path) / 1024)}
 
 
 def categories(conn):

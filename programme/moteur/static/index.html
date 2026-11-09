@@ -63,6 +63,12 @@ button.danger { background: transparent; color: var(--neg); border: 1px solid va
 .kpi .l { color: var(--muted); font-size: 13px; }
 
 .cat { display: grid; grid-template-columns: minmax(110px, 1fr) 2fr auto; gap: 10px; align-items: center; padding: 5px 0; font-size: 14px; }
+/* Tableau de bord : une seule grille pour toute la liste, pour que noms, barres et montants soient alignés d'une ligne à l'autre */
+#cats, #merchants { display: grid; grid-template-columns: fit-content(38%) minmax(80px, 1fr) max-content; column-gap: 14px; row-gap: 12px;
+  align-items: center; font-size: 14px; }
+#cats > .cat, #merchants > .cat { display: contents; }
+#cats > .cat > .amt, #merchants > .cat > .amt { text-align: right; white-space: nowrap; }
+#cats > p, #merchants > p { grid-column: 1 / -1; margin: 0; }
 .track { height: 9px; background: var(--bg); border-radius: 5px; overflow: hidden; position: relative; }
 .fill { height: 100%; background: var(--bar); border-radius: 5px; }
 .fill.over { background: var(--neg); }
@@ -118,6 +124,173 @@ details summary { cursor: pointer; color: var(--muted); font-size: 13px; margin-
 #drop.hover { border-color: var(--accent); background: var(--accent-soft); color: var(--text); }
 dialog { border: 1px solid var(--line); border-radius: 14px; background: var(--card); color: var(--text); padding: 22px; width: min(420px, calc(100vw - 32px)); }
 dialog::backdrop { background: rgba(0,0,0,.35); }
+/* ===================== Paramètres : fenêtre en verre liquide ===================== */
+.gear { width: 36px; height: 36px; padding: 0 !important; display: inline-grid; place-items: center; border-radius: 50% !important; }
+.gear svg { width: 19px; height: 19px; transition: transform .6s var(--ease, ease); }
+.gear:hover svg { transform: rotate(90deg); }
+dialog.prefs { padding: 0; border: 0; background: transparent; box-shadow: none; overflow: visible;
+  width: min(920px, calc(100vw - 32px)); max-width: none; height: min(660px, calc(100vh - 40px)); max-height: none; }
+dialog.prefs[open] { animation: none; }
+dialog.prefs::backdrop { background: rgba(0,0,0,.22); -webkit-backdrop-filter: blur(8px) saturate(140%); backdrop-filter: blur(8px) saturate(140%); }
+dialog.prefs[open]::backdrop { animation: cdBdIn .45s var(--ease) both; }
+dialog.prefs.closing::backdrop { animation: cdBdOut .3s ease forwards; }
+.prefs-win { height: 100%; display: grid; grid-template-columns: 236px minmax(0, 1fr); border-radius: 26px; overflow: hidden;
+  background: color-mix(in srgb, var(--card) 90%, transparent); color: var(--text);
+  -webkit-backdrop-filter: blur(40px) saturate(190%); backdrop-filter: blur(40px) saturate(190%);
+  border: 1px solid var(--glass-edge, var(--line));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.22), 0 30px 90px rgba(0,0,0,.35), 0 0 0 .5px rgba(0,0,0,.18); }
+.prefs-side { display: flex; flex-direction: column; gap: 12px; padding: 18px 12px; min-height: 0;
+  background: color-mix(in srgb, var(--text) 4%, transparent); border-right: 1px solid var(--line); }
+.prefs-search { display: flex; align-items: center; gap: 7px; margin: 0 !important; padding: 7px 11px; border-radius: 11px;
+  background: color-mix(in srgb, var(--text) 7%, transparent); color: var(--muted) !important; transition: box-shadow .25s; }
+.prefs-search:focus-within { box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 35%, transparent); }
+.prefs-search svg { width: 15px; height: 15px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+.prefs-search input { all: unset; flex: 1; min-width: 0; font-size: 14px; color: var(--text); }
+#prefNav { position: relative; display: flex; flex-direction: column; gap: 2px; overflow-y: auto; }
+#prefPill { position: absolute; left: 0; right: 0; top: 0; bottom: auto; height: 38px; border-radius: 11px; pointer-events: none;
+  background: var(--glass-pill, color-mix(in srgb, var(--text) 10%, transparent));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.28), 0 2px 10px rgba(0,0,0,.08);
+  transform-origin: 50% 50%; will-change: transform; backface-visibility: hidden; }
+.psec > *, #prefTitle { backface-visibility: hidden; }
+#prefNav button { position: relative; z-index: 1; display: flex; align-items: center; gap: 11px; width: 100%; text-align: left;
+  transition: background .2s ease, transform .2s ease !important;
+  background: transparent !important; color: var(--text) !important; box-shadow: none !important; border: 0 !important;
+  padding: 7px 10px !important; border-radius: 11px !important; font-size: 14px; font-weight: 500; filter: none !important; }
+#prefNav button:hover { background: color-mix(in srgb, var(--text) 5%, transparent) !important; }
+#prefNav button:active { transform: scale(.98); }
+#prefNav i { width: 24px; height: 24px; border-radius: 7px; display: grid; place-items: center; flex: none; color: #fff;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--c) 82%, #fff), var(--c)); box-shadow: 0 1px 2px rgba(0,0,0,.18); }
+#prefNav i svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+#prefNav.searching button { opacity: .45; }
+.prefs-main { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+.prefs-head { display: flex; align-items: center; justify-content: space-between; padding: 18px 22px 6px 28px; }
+.prefs-head h2 { margin: 0; font-size: 24px !important; font-weight: 700; letter-spacing: -.025em; }
+.prefs-close { width: 30px; height: 30px; padding: 0 !important; border-radius: 50% !important; display: grid; place-items: center;
+  background: color-mix(in srgb, var(--text) 8%, transparent) !important; color: var(--text) !important; }
+.prefs-close svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; }
+.prefs-body { flex: 1; min-height: 0; overflow-y: auto; padding: 4px 28px 28px; scroll-behavior: smooth; }
+.psec { display: none; }
+.psec.on, .prefs-body.searching .psec.has { display: block; }
+.prefs-body.searching .psec:not(.has), #settingsDialog .pmiss { display: none !important; }
+.prow.block { display: block; }
+.prefs-body.searching .psec::before { content: attr(data-title); display: block; font-size: 17px; font-weight: 700; margin: 18px 0 2px; }
+.psec h4 { font-size: 12.5px; font-weight: 600; color: var(--muted); text-transform: none; letter-spacing: 0; margin: 18px 0 7px 4px; }
+.pcard { border-radius: 14px; background: color-mix(in srgb, var(--card) 70%, transparent); border: 1px solid var(--line);
+  box-shadow: 0 1px 2px rgba(0,0,0,.04); overflow: hidden; }
+.prow { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 12px 16px; min-height: 52px; }
+.prow + .prow { border-top: 1px solid var(--line); }
+.prow .pl { min-width: 0; } .prow .pl b { display: block; font-size: 14px; font-weight: 550; }
+.prow .pl small { display: block; color: var(--muted); font-size: 12px; margin-top: 2px; line-height: 1.4; }
+.prow .pc { flex: none; display: flex; align-items: center; gap: 6px; }
+.prow input[type=text], .prow input[type=number], .prow select { margin: 0; font-size: 14px; }
+.pnote { color: var(--muted); font-size: 12.5px; line-height: 1.5; margin: 12px 4px 0; }
+.pbtns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+kbd { font: 11px/1 -apple-system, system-ui, sans-serif; padding: 2px 6px; border-radius: 5px; border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--text) 6%, transparent); color: var(--text); }
+/* Interrupteur façon iOS */
+.sw { position: relative; display: inline-block !important; width: 44px; height: 26px; margin: 0 !important; cursor: pointer; }
+.sw input { position: absolute; opacity: 0; width: 0; height: 0; }
+.sw span { position: absolute; inset: 0; border-radius: 26px; background: color-mix(in srgb, var(--text) 18%, transparent); transition: background .3s; }
+.sw span::after { content: ""; position: absolute; top: 2px; left: 2px; width: 22px; height: 22px; border-radius: 50%; background: #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,.25), 0 0 0 .5px rgba(0,0,0,.04); transition: transform .42s var(--spring, ease), width .2s; }
+.sw:active span::after { width: 27px; }
+.sw input:checked + span { background: var(--pos, #30d158); }
+.sw input:checked + span::after { transform: translateX(18px); }
+.sw input:checked:active + span::after { transform: translateX(13px); }
+.sw input:focus-visible + span { box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 40%, transparent); }
+/* Contrôle segmenté en verre */
+.segc { position: relative; display: inline-flex; padding: 2px; border-radius: 10px; background: color-mix(in srgb, var(--text) 8%, transparent); }
+.segc button { position: relative; z-index: 1; background: transparent !important; color: var(--text) !important; box-shadow: none !important;
+  border: 0 !important; padding: 5px 13px !important; border-radius: 8px !important; font-size: 13px; font-weight: 500; filter: none !important; }
+.segc .knob { position: absolute; top: 2px; bottom: 2px; left: 0; border-radius: 8px; background: var(--card);
+  box-shadow: 0 1px 4px rgba(0,0,0,.16), 0 0 0 .5px rgba(0,0,0,.05); transition: left .45s var(--spring, ease), width .45s var(--spring, ease); }
+/* Pastilles de couleur */
+.swatches { gap: 9px !important; }
+.swatches button { width: 24px; height: 24px; padding: 0 !important; border-radius: 50% !important; background: var(--s) !important;
+  border: 0 !important; box-shadow: inset 0 0 0 1px rgba(0,0,0,.12) !important; transition: transform .35s var(--spring, ease), box-shadow .25s; filter: none !important; }
+.swatches button:hover { transform: scale(1.12); }
+.swatches button.on { box-shadow: 0 0 0 2px var(--card), 0 0 0 4px var(--s) !important; transform: scale(1.06); }
+.sw-sep { width: 1px; height: 22px; background: var(--line); margin: 0 3px; }
+.swatches .sw-custom { width: 24px; height: 24px; padding: 0 !important; border-radius: 50% !important; border: 0 !important; filter: none !important;
+  background: conic-gradient(from 90deg, #ff3b30, #ff9500, #ffcc00, #34c759, #00c7be, #0a84ff, #5e5ce6, #bf5af2, #ff2d55, #ff3b30) !important;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.12) !important; transition: transform .35s var(--spring, ease), box-shadow .25s; }
+.swatches .sw-custom:hover { transform: scale(1.12) rotate(30deg); }
+.swatches .sw-custom.on { box-shadow: 0 0 0 2px var(--card), 0 0 0 4px var(--accent) !important; transform: scale(1.06); }
+/* Roue des couleurs */
+.wheel-wrap { display: flex; gap: 24px; align-items: center; flex-wrap: wrap; padding: 4px 0; }
+.wheel { position: relative; width: 180px; height: 180px; flex: none; border-radius: 50%; touch-action: none; cursor: crosshair;
+  box-shadow: 0 0 0 1px var(--line), 0 10px 30px rgba(0,0,0,.18); }
+.wheel canvas { width: 180px; height: 180px; border-radius: 50%; display: block; }
+#wheelDot { position: absolute; width: 22px; height: 22px; margin: -11px 0 0 -11px; border-radius: 50%; border: 3px solid #fff; pointer-events: none;
+  box-shadow: 0 2px 8px rgba(0,0,0,.35), inset 0 0 0 1px rgba(0,0,0,.15); transition: transform .2s var(--spring, ease); will-change: left, top; }
+.wheel.drag #wheelDot { transform: scale(1.25); }
+.wheel-side { flex: 1; min-width: 200px; display: grid; gap: 12px; }
+.wheel-l { display: grid !important; gap: 5px; font-size: 12.5px; color: var(--muted); margin: 0 !important; }
+.wheel-l input[type=range] { accent-color: var(--accent); width: 100%; }
+.wheel-l input[type=text] { width: 120px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; text-transform: lowercase; }
+.wheel-prev { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.wp-hero { padding: 9px 12px; border-radius: 12px; background: var(--hero); color: #fff; min-width: 120px; box-shadow: 0 6px 16px rgba(0,0,0,.15); }
+.wp-hero small { display: block; font-size: 10.5px; opacity: .8; } .wp-hero b { font-size: 16px; letter-spacing: -.02em; }
+.wp-btn { padding: 6px 13px; border-radius: 980px; background: var(--accent); color: #fff; font-size: 12.5px; font-weight: 600; }
+.wp-bar { width: 70px; height: 8px; border-radius: 6px; background: color-mix(in srgb, var(--text) 10%, transparent); overflow: hidden; }
+.wp-bar i { display: block; width: 62%; height: 100%; background: var(--bar); border-radius: 6px; }
+/* Choix du thème avec aperçu */
+.themes { display: flex; gap: 14px; flex-wrap: wrap; }
+.themes button { display: flex; flex-direction: column; align-items: center; gap: 8px; background: transparent !important; color: var(--text) !important;
+  border: 0 !important; box-shadow: none !important; padding: 0 !important; font-size: 13px; font-weight: 500; filter: none !important; }
+.tprev { position: relative; display: block; width: 116px; height: 74px; border-radius: 12px; overflow: hidden; box-shadow: 0 0 0 1px var(--line), 0 4px 14px rgba(0,0,0,.1);
+  transition: transform .4s var(--spring, ease), box-shadow .25s; }
+.themes button:hover .tprev { transform: translateY(-3px); }
+.themes button.on .tprev { box-shadow: 0 0 0 3px var(--accent), 0 6px 18px rgba(0,0,0,.14); }
+.tprev.clair { background: #f5f5f7; } .tprev.sombre { background: #1c1c1e; }
+.tprev.auto { background: linear-gradient(105deg, #f5f5f7 0 50%, #1c1c1e 50% 100%); }
+.tprev i { position: absolute; left: 10px; right: 10px; height: 14px; border-radius: 5px; }
+.tprev i:first-child { top: 10px; width: 46px; background: var(--accent); }
+.tprev i:last-child { top: 32px; height: 32px; background: rgba(127,127,127,.28); }
+.range { gap: 10px !important; } .range input { width: 150px; accent-color: var(--accent); } .range output { min-width: 42px; text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+/* À propos */
+.about-hero { display: flex; align-items: center; gap: 16px; margin: 10px 0 6px; }
+.about-icon { width: 64px; height: 64px; border-radius: 16px; display: grid; place-items: center; color: #fff; background: var(--hero); box-shadow: 0 8px 24px rgba(0,0,0,.18); }
+.about-icon svg { width: 34px; height: 34px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; }
+.about-name { font-size: 22px; font-weight: 700; letter-spacing: -.02em; }
+.about-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin-top: 16px; }
+.about-stats div { padding: 12px 14px; border-radius: 14px; background: color-mix(in srgb, var(--card) 70%, transparent); border: 1px solid var(--line); }
+.about-stats b { display: block; font-size: 20px; letter-spacing: -.02em; } .about-stats span { color: var(--muted); font-size: 12px; }
+.kbds .prow { min-height: 40px; padding: 8px 16px; font-size: 13.5px; }
+@media (max-width: 720px) {
+  .prefs-win { grid-template-columns: 1fr; grid-template-rows: auto minmax(0, 1fr); }
+  .prefs-side { border-right: 0; border-bottom: 1px solid var(--line); padding: 12px; }
+  #prefNav { flex-direction: row; overflow-x: auto; } #prefNav button { width: auto; white-space: nowrap; } #prefPill { display: none; }
+  #prefNav button.on { background: color-mix(in srgb, var(--text) 10%, transparent) !important; }
+  .prow { flex-wrap: wrap; }
+}
+/* ===================== Réglages d'affichage ===================== */
+.fill.warn { background: var(--warn); }
+.greet { font-size: 26px; font-weight: 700; letter-spacing: -.03em; margin: 2px 0 14px; }
+.greet small { display: block; font-size: 14px; font-weight: 500; color: var(--muted); letter-spacing: 0; margin-top: 2px; }
+.hero .alertline { margin-top: 6px; padding: 8px 12px; border-radius: 12px; background: rgba(255,255,255,.18); font-size: 13px; font-weight: 600; }
+html.no-anim *, html.no-anim *::before, html.no-anim *::after, html.no-anim dialog::backdrop { animation: none !important; transition: none !important; }
+html.no-glass *, html.no-glass *::before, html.no-glass dialog::backdrop { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+html.no-glass body { background: var(--bg) !important; }
+html.no-glass .prefs-win { background: var(--card); }
+html.no-red .neg { color: inherit !important; }
+html.discret :is(.amt, .big, .bignum, .kpi .v, #kSubsDet, .hero b, .hero .sub, .hero .fc, #bgTotal, #bgSpent, #bgLeft, #subMonthly, #chgMonthly,
+  #loanTotal, #loanMonthly, #debtTotal, #cdStats > div > div:last-child, .loan .rest, .cat .amt, td.amt, .line .amt) {
+  filter: blur(7px) !important; transition: none !important; }
+html.discret :is(.amt, .big, .bignum, .kpi .v, #kSubsDet, .hero b, .hero .sub, .hero .fc, #bgTotal, #bgSpent, #bgLeft, #subMonthly, #chgMonthly,
+  #loanTotal, #loanMonthly, #debtTotal, #cdStats > div > div:last-child, .loan .rest, .cat .amt, td.amt, .line .amt):hover { filter: none !important; }
+/* Écran de verrouillage */
+#lockScreen { position: fixed; inset: 0; z-index: 2147483000; display: grid; place-items: center;
+  background: color-mix(in srgb, var(--bg) 55%, transparent); -webkit-backdrop-filter: blur(40px) saturate(180%); backdrop-filter: blur(40px) saturate(180%); }
+#lockScreen[hidden] { display: none !important; }
+#lockScreen .lock-card { text-align: center; display: grid; justify-items: center; gap: 10px; animation: dlg .5s var(--ease) both; }
+#lockScreen .lock-ico { width: 74px; height: 74px; border-radius: 22px; display: grid; place-items: center; color: #fff; background: var(--hero); box-shadow: 0 14px 40px rgba(0,0,0,.25); }
+#lockScreen .lock-ico svg { width: 34px; height: 34px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+#lockScreen h2 { font-size: 22px !important; margin: 8px 0 0; } #lockScreen p { color: var(--muted); margin: 0 0 8px; }
+#lockScreen.out { animation: lockOut .42s var(--ease) forwards; }
+@keyframes lockOut { to { opacity: 0; transform: scale(1.06); -webkit-backdrop-filter: blur(0); backdrop-filter: blur(0); } }
+html.locked header, html.locked main, html.locked dialog { visibility: hidden !important; }
+
 dialog.wide { width: min(820px, calc(100vw - 32px)); max-height: calc(100vh - 48px); overflow: auto; padding: 24px 26px; }
 dialog.wide h3 { font-size: 15px; font-weight: 600; margin: 22px 0 4px; }
 dialog.wide .hint { font-size: 13px; margin: 0 0 10px; }
@@ -307,6 +480,7 @@ dialog input[type=password]:focus { outline: none; border-color: var(--accent); 
     <button id="bankBtn" class="ghost" hidden style="padding:7px 12px;font-size:14px">Mes banques</button>
     <button id="importBtn" class="ghost" style="padding:7px 12px;font-size:14px">Importer un relevé</button>
     <input type="file" id="file" accept=".csv,.ofx,.qfx,.txt" multiple hidden>
+    <button id="settingsBtn" class="ghost gear" title="Paramètres" aria-label="Paramètres"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.03 1.56V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1.11-1.56 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.56-1.03H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.6 8.9a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 8.96 4.6 1.7 1.7 0 0 0 10 3.04V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1.03 1.56 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.4 9c.18.6.75 1 1.56 1.03H21a2 2 0 1 1 0 4h-.09A1.7 1.7 0 0 0 19.4 15Z"/></svg></button>
   </div>
 </header>
 
@@ -328,6 +502,7 @@ dialog input[type=password]:focus { outline: none; border-color: var(--accent); 
 
   <!-- ===================== TABLEAU DE BORD ===================== -->
   <div class="tab" id="tab-dash" hidden>
+    <div class="greet" id="greet" hidden></div>
     <div class="top">
       <section class="hero" id="hero"></section>
       <div style="display:grid;gap:12px;align-content:start">
@@ -505,6 +680,196 @@ dialog input[type=password]:focus { outline: none; border-color: var(--accent); 
   </div>
 </main>
 
+<dialog id="settingsDialog" class="prefs" aria-label="Paramètres">
+  <div class="prefs-win">
+    <aside class="prefs-side">
+      <label class="prefs-search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>
+        <input type="search" id="prefSearch" placeholder="Rechercher" autocomplete="off"></label>
+      <nav id="prefNav">
+        <span id="prefPill" aria-hidden="true"></span>
+        <button type="button" data-sec="general"><i style="--c:#8e8e93"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg></i>Général</button>
+        <button type="button" data-sec="apparence"><i style="--c:#0a84ff"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16Z" fill="currentColor"/></svg></i>Apparence</button>
+        <button type="button" data-sec="montants"><i style="--c:#30d158"><svg viewBox="0 0 24 24"><path d="M17 6.8A6.3 6.3 0 1 0 17 17.2M4.5 10.2h9M4.5 13.8h9"/></svg></i>Montants</button>
+        <button type="button" data-sec="alertes"><i style="--c:#ff9f0a"><svg viewBox="0 0 24 24"><path d="M6.5 16.5v-5a5.5 5.5 0 0 1 11 0v5l1.5 2h-14Z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg></i>Budget et alertes</button>
+        <button type="button" data-sec="mensualites"><i style="--c:#bf5af2"><svg viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14.5" rx="3"/><path d="M4 10.5h16M9 3.5v4M15 3.5v4"/></svg></i>Mensualités</button>
+        <button type="button" data-sec="banques"><i style="--c:#5e5ce6"><svg viewBox="0 0 24 24"><path d="M3.5 10 12 4.5l8.5 5.5M6 10.5v7M10 10.5v7M14 10.5v7M18 10.5v7M3.5 20h17"/></svg></i>Banques</button>
+        <button type="button" data-sec="confidentialite"><i style="--c:#ff375f"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9.5" rx="2.5"/><path d="M8.5 11V8a3.5 3.5 0 0 1 7 0v3"/></svg></i>Confidentialité</button>
+        <button type="button" data-sec="donnees"><i style="--c:#40c8e0"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="6.5" rx="7" ry="2.8"/><path d="M5 6.5v11c0 1.6 3.1 2.8 7 2.8s7-1.2 7-2.8v-11M5 12c0 1.6 3.1 2.8 7 2.8s7-1.2 7-2.8"/></svg></i>Données</button>
+        <button type="button" data-sec="apropos"><i style="--c:#636366"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5M12 7.6v.4"/></svg></i>À propos</button>
+      </nav>
+    </aside>
+    <section class="prefs-main">
+      <div class="prefs-head"><h2 id="prefTitle">Général</h2>
+        <button type="button" class="prefs-close" id="setClose" aria-label="Fermer les paramètres"><svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7 7 17"/></svg></button></div>
+      <div class="prefs-body" id="prefBody">
+
+        <div class="psec" data-sec="general" data-title="Général">
+          <h4>Accueil</h4>
+          <div class="pcard">
+            <div class="prow"><div class="pl"><b>Ton prénom</b><small>Pour un petit mot d'accueil sur le tableau de bord.</small></div>
+              <div class="pc"><input type="text" data-set="prenom" maxlength="30" placeholder="ex. Alex" style="width:170px"></div></div>
+            <div class="prow"><div class="pl"><b>Onglet à l'ouverture</b><small>Ce que tu vois en lançant le logiciel.</small></div>
+              <div class="pc"><select data-set="onglet_demarrage"><option value="dash">Tableau de bord</option><option value="solde">Solde</option><option value="budget">Budget</option><option value="subs">Mensualités</option><option value="credits">Crédits</option></select></div></div>
+          </div>
+          <h4>Mon mois</h4>
+          <div class="pcard">
+            <div class="prow"><div class="pl"><b>Mon mois commence le</b><small>Par exemple le jour de ta paie (du 25 au 24).</small></div>
+              <div class="pc"><input type="number" id="setCycle" min="1" max="28" style="width:80px"></div></div>
+          </div>
+        </div>
+
+        <div class="psec" data-sec="apparence" data-title="Apparence">
+          <h4>Thème</h4>
+          <div class="pcard"><div class="prow block"><div class="themes" data-seg="theme">
+            <button type="button" data-v="auto"><span class="tprev auto"><i></i><i></i></span>Automatique</button>
+            <button type="button" data-v="clair"><span class="tprev clair"><i></i><i></i></span>Clair</button>
+            <button type="button" data-v="sombre"><span class="tprev sombre"><i></i><i></i></span>Sombre</button>
+          </div><small class="muted" style="display:block;margin-top:10px;font-size:12px">« Automatique » suit le réglage de ton ordinateur.</small></div></div>
+          <h4>Couleurs et texte</h4>
+          <div class="pcard">
+            <div class="prow"><div class="pl"><b>Couleur d'accentuation</b><small>Boutons, barres et bloc du solde.</small></div>
+              <div class="pc swatches"><div class="swatches" data-seg="accent" style="display:flex">
+                <button type="button" data-v="bleu" style="--s:#0a84ff" title="Bleu"></button><button type="button" data-v="violet" style="--s:#bf5af2" title="Violet"></button>
+                <button type="button" data-v="rose" style="--s:#ff375f" title="Rose"></button><button type="button" data-v="orange" style="--s:#ff9f0a" title="Orange"></button>
+                <button type="button" data-v="vert" style="--s:#30d158" title="Vert"></button><button type="button" data-v="graphite" style="--s:#8e8e93" title="Graphite"></button></div>
+                <span class="sw-sep"></span><button type="button" id="accentCustom" class="sw-custom" title="Couleur personnalisée" aria-label="Couleur personnalisée"></button></div></div>
+            <div class="prow block" id="wheelRow" hidden>
+              <div class="wheel-wrap">
+                <div class="wheel" id="wheelBox"><canvas id="wheel" width="360" height="360" aria-label="Roue des couleurs"></canvas><span id="wheelDot"></span></div>
+                <div class="wheel-side">
+                  <div class="wheel-prev" id="wheelPrev"><div class="wp-hero"><small>Solde actuel</small><b>1 243,18 €</b></div><span class="wp-btn">Synchroniser</span><span class="wp-bar"><i></i></span></div>
+                  <label class="wheel-l">Luminosité<input type="range" id="wheelV" min="35" max="100" value="100"></label>
+                  <label class="wheel-l">Code couleur<input type="text" id="wheelHex" maxlength="7" spellcheck="false" autocomplete="off" placeholder="#0a84ff"></label>
+                  <small class="muted">Fais glisser le point sur la roue. La couleur est ajustée pour rester lisible en clair comme en sombre.</small>
+                </div>
+              </div>
+            </div>
+            <div class="prow"><div class="pl"><b>Taille du texte</b></div>
+              <div class="pc"><div class="segc" data-seg="taille_texte"><button type="button" data-v="petite">Petite</button><button type="button" data-v="normale">Normale</button><button type="button" data-v="grande">Grande</button></div></div></div>
+          </div>
+          <h4>Effets</h4>
+          <div class="pcard">
+            <div class="prow"><div class="pl"><b>Animations</b><small>Changement d'onglet, ouverture des fenêtres, apparitions.</small></div>
+              <div class="pc"><label class="sw"><input type="checkbox" data-set="animations"><span></span></label></div></div>
+            <div class="prow"><div class="pl"><b>Effet de verre</b><small>Transparence et flou de la barre et des fenêtres.</small></div>
+              <div class="pc"><label class="sw"><input type="checkbox" data-set="effet_verre"><span></span></label></div></div>
+          </div>
+        </div>
+
+        <div class="psec" data-sec="montants" data-title="Montants">
+          <h4>Affichage</h4>
+          <div class="pcard">
+            <div class="prow"><div class="pl"><b>Afficher les centimes</b><small>1 243,18 € ou 1 243 €.</small></div>
+              <div class="pc"><label class="sw"><input type="checkbox" data-set="centimes"><span></span></label></div></div>
+            <div class="prow"><div class="pl"><b>Dépenses en rouge</b><small>Sinon, les montants restent de la couleur du texte.</small></div>
+              <div class="pc"><label class="sw"><input type="checkbox" data-set="depenses_rouge"><span></span></label></div></div>
+            <div class="prow"><div class="pl"><b>Prochains prélèvements affichés</b><small>Sur le tableau de bord.</small></div>
+              <div class="pc"><div class="segc" data-seg="prelevements_affiches"><button type="button" data-v="5">5</button><button type="button" data-v="8">8</button><button type="button" data-v="12">12</button><button type="button" data-v="20">20</button></div></div></div>
+          </div>
+          <h4>Discrétion</h4>
+          <div class="pcard">
+            <div class="prow"><div class="pl"><b>Mode discret</b><small>Floute les montants ; passe la souris dessus pour les lire. Raccourci : <kbd id="kbdDiscret">⌘⇧D</kbd></small></div>
+              <div class="pc"><label class="sw"><input type="checkbox" data-set="mode_discret"><span></span></label></div></div>
+          </div>
+        </div>
+
+        <div class="psec" data-sec="alertes" data-title="Budget et alertes">
+          <h4>Prévisionnel</h4>
+          <div class="pcard">
+            <div class="prow"><div class="pl"><b>Dépenses du quotidien</b><small>Courses, sorties… estimées jusqu'à la fin du mois dans le solde prévu.</small></div>
+              <div class="pc"><select id="setEst"></select></div></div>
+            <div class="prow" id="rowBudgetQuotidien"><div class="pl"><b>Budget du quotidien</b><small>Montant mensuel utilisé avec « budget fixe ».</small></div>
+              <div class="pc"><input type="number" id="setBq" min="0" step="10" style="width:110px"> <span class="muted">€</span></div></div>
+          </div>
+          <h4>Alertes</h4>
+          <div class="pcard">
+            <div class="prow"><div class="pl"><b>Alerte de budget</b><small>Une barre passe en orange quand ce pourcentage du budget est atteint.</small></div>
+              <div class="pc range"><input type="range" data-set="seuil_alerte_budget" min="50" max="100" step="5"><output id="seuilOut"></output></div></div>
+            <div class="prow"><div class="pl"><b>Alerte de solde bas</b><small>Prévient sur le tableau de bord si ton solde ou ta fin de mois passe sous ce montant. Vide = désactivée.</small></div>
+              <div class="pc"><input type="number" data-set="alerte_solde_bas" step="10" placeholder="ex. 100" style="width:110px"> <span class="muted">€</span></div></div>
+          </div>
+        </div>
+
+        <div class="psec" data-sec="mensualites" data-title="Mensualités">
+          <h4>Suivi</h4>
+          <div class="pcard">
+            <div class="prow"><div class="pl"><b>Abonnement arrêté après</b><small>Sans paiement constaté pendant ce délai, un abonnement passe en « arrêté ».</small></div>
+              <div class="pc"><div class="segc" data-seg="arret_abonnement_mois"><button type="button" data-v="1">1 mois</button><button type="button" data-v="2">2 mois</button><button type="button" data-v="3">3 mois</button><button type="button" data-v="6">6 mois</button></div></div></div>
+          </div>
+          <p class="pnote">Ta liste de mensualités reste la référence : les opérations servent seulement à confirmer les paiements.</p>
+        </div>
+
+        <div class="psec" data-sec="banques" data-title="Banques">
+          <h4>Banques connectées</h4>
+          <div class="pcard" id="setBanks"></div>
+          <div class="pbtns" id="setBankBtns"><button type="button" id="setSync">Synchroniser maintenant</button><button type="button" class="ghost" id="setAddBank">+ Connecter une banque</button></div>
+          <h4 class="app-only">Synchronisation</h4>
+          <div class="pcard app-only">
+            <div class="prow"><div class="pl"><b>Synchronisation automatique</b><small>Au lancement du logiciel.</small></div>
+              <div class="pc"><select data-set="sync_auto"><option value="6h">Si la dernière date de plus de 6 h</option><option value="ouverture">À chaque ouverture</option><option value="off">Jamais (seulement à la main)</option></select></div></div>
+          </div>
+          <p class="pnote">Tes identifiants sont gardés chiffrés dans le trousseau de ton ordinateur, jamais dans un fichier. Ton ordinateur se connecte directement à ta banque, sans intermédiaire.</p>
+        </div>
+
+        <div class="psec" data-sec="confidentialite" data-title="Confidentialité">
+          <h4 class="mac-only">Verrouillage</h4>
+          <div class="pcard mac-only">
+            <div class="prow"><div class="pl"><b>Verrouiller avec Touch ID</b><small>Touch ID ou le mot de passe de ta session est demandé à l'ouverture.</small></div>
+              <div class="pc"><label class="sw"><input type="checkbox" id="setLock"><span></span></label></div></div>
+            <div class="prow"><div class="pl"><b>Verrouiller après</b><small>Temps passé dans une autre appli avant de reverrouiller.</small></div>
+              <div class="pc"><select id="setLockAfter"><option value="0">Jamais</option><option value="1">1 minute</option><option value="5">5 minutes</option><option value="15">15 minutes</option><option value="60">1 heure</option></select></div></div>
+            <div class="prow"><div class="pl"><b>Verrouiller maintenant</b><small>Raccourci : <kbd>⌘L</kbd></small></div>
+              <div class="pc"><button type="button" class="ghost" id="setLockNow">Verrouiller</button></div></div>
+          </div>
+          <h4>Écran</h4>
+          <div class="pcard">
+            <div class="prow"><div class="pl"><b>Mode discret</b><small>Floute les montants, pratique en public ou en partage d'écran.</small></div>
+              <div class="pc"><label class="sw"><input type="checkbox" data-set="mode_discret"><span></span></label></div></div>
+          </div>
+          <p class="pnote">Pas de serveur, pas de compte, pas de statistiques d'utilisation : tes données restent sur cet ordinateur et ne sont envoyées qu'à ta banque, pendant une synchronisation.</p>
+        </div>
+
+        <div class="psec" data-sec="donnees" data-title="Données">
+          <h4>Importer et exporter</h4>
+          <div class="pcard">
+            <div class="prow"><div class="pl"><b>Importer un relevé</b><small>Fichier CSV ou OFX de n'importe quelle banque.</small></div>
+              <div class="pc"><button type="button" class="ghost" id="setImport">Importer…</button></div></div>
+            <div class="prow app-only"><div class="pl"><b>Exporter mes opérations</b><small>Fichier CSV lisible par Excel, Numbers ou LibreOffice.</small></div>
+              <div class="pc"><button type="button" class="ghost" id="setExport">Exporter…</button></div></div>
+          </div>
+          <h4 class="app-only">Sauvegarde</h4>
+          <div class="pcard app-only">
+            <div class="prow"><div class="pl"><b>Créer une sauvegarde</b><small>Copie complète de tes données (opérations, budgets, mensualités, crédits).</small></div>
+              <div class="pc"><button type="button" class="ghost" id="setBackup">Sauvegarder…</button></div></div>
+            <div class="prow mac-only"><div class="pl"><b>Dossier des données</b><small>Afficher dans le Finder.</small></div>
+              <div class="pc"><button type="button" class="ghost" id="setFolder">Afficher</button></div></div>
+          </div>
+          <h4>Réinitialiser</h4>
+          <div class="pcard">
+            <div class="prow"><div class="pl"><b>Réglages d'affichage</b><small>Thème, couleur, texte, effets et montants reviennent à leur valeur d'origine. Tes données ne sont pas touchées.</small></div>
+              <div class="pc"><button type="button" class="danger" id="setReset">Réinitialiser</button></div></div>
+          </div>
+        </div>
+
+        <div class="psec" data-sec="apropos" data-title="À propos">
+          <div class="about-hero"><div class="about-icon"><svg viewBox="0 0 24 24"><path d="M5 18V12M10 18V8M15 18v-4M20 18V6"/></svg></div>
+            <div><div class="about-name">Budget perso</div><div class="muted" id="aboutVersion"></div></div></div>
+          <div class="about-stats" id="aboutStats"></div>
+          <h4>Raccourcis clavier</h4>
+          <div class="pcard kbds" id="kbdList"></div>
+          <div class="pbtns app-only" style="margin-top:16px"><button type="button" class="ghost" data-open="site">Site web</button><button type="button" class="ghost" data-open="code">Code source</button></div>
+        </div>
+
+      </div>
+    </section>
+  </div>
+</dialog>
+
+<div id="lockScreen" hidden><div class="lock-card">
+  <div class="lock-ico"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9.5" rx="2.5"/><path d="M8.5 11V8a3.5 3.5 0 0 1 7 0v3"/></svg></div>
+  <h2>Budget perso est verrouillé</h2><p>Touch ID ou le mot de passe de ta session</p>
+  <button type="button" id="unlockBtn">Déverrouiller</button></div></div>
+
 <dialog id="catDialog" class="wide">
   <div class="toolbar" style="align-items:flex-start">
     <div><h2 id="cdTitle" style="margin:0;font-size:22px"></h2><div class="muted" style="font-size:13px;margin-top:2px" id="cdPeriod"></div></div>
@@ -661,7 +1026,14 @@ dialog input[type=password]:focus { outline: none; border-color: var(--accent); 
 <script>
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
-const eur = v => (v == null ? "—" : new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(v));
+let CENTS = true;  // réglage « Afficher les centimes »
+const EUR_FMT = {};
+const eur = v => {
+  if (v == null) return "—";
+  const k = CENTS ? 2 : 0;
+  return (EUR_FMT[k] = EUR_FMT[k] || new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR", minimumFractionDigits: k, maximumFractionDigits: k })).format(v);
+};
+const noAnim = () => document.documentElement.classList.contains("no-anim") || !!(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
 const signed = v => (v > 0 ? "+" : "") + eur(v);
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const iso = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
@@ -714,7 +1086,7 @@ const ago = s => { const m = Math.round((Date.now() - new Date(s)) / 60000);
 let bankConnected = false, syncing = false;
 function paintSync(text) {
   $("#syncBtn").hidden = !bridge();
-  $("#bankBtn").hidden = !bankApi();
+  $("#bankBtn").hidden = true;  // les banques se gèrent dans les paramètres (engrenage)
   $("#syncBtn").disabled = syncing;
   $("#syncBtn").style.opacity = syncing ? .6 : 1;
   $("#syncBtn").textContent = syncing ? "Synchronisation…" : bankConnected ? "Synchroniser" : "Connecter ma banque";
@@ -747,7 +1119,7 @@ function moveTabPill() {
   // Mouvement « liquide » : le bord avant file vers le nouvel onglet, le bord arrière suit en retard,
   // la pastille s'allonge un peu puis se reforme, en un seul geste continu.
   const W = pill.parentElement.clientWidth, L = on.offsetLeft, R = W - (on.offsetLeft + on.offsetWidth);
-  const reduced = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const reduced = noAnim();
   const ease = "cubic-bezier(.3, 1, .4, 1)";
   if (pill._L === undefined || reduced) pill.style.transition = "none";
   else if (L > pill._L) pill.style.transition = `left .62s ${ease}, right .42s ${ease}`;   // vers la droite
@@ -784,6 +1156,9 @@ async function init() {
   [CATS, ACCOUNTS, MONTHS, SETTINGS] = await Promise.all([api("categories"), api("accounts"), api("months"), api("settings")]);
   CYCLE_DAY = parseInt(SETTINGS.jour_debut_mois, 10) || 1;
   $("#cycleDay").value = CYCLE_DAY;
+  SET = { ...SETTINGS };
+  applyTheme(SETTINGS.theme); applyDisplay();
+  if (!window._bpStarted) { window._bpStarted = true; if (TAB_ORDER.includes(SETTINGS.onglet_demarrage)) tab = SETTINGS.onglet_demarrage; }
   $("#accountsList").innerHTML = ACCOUNTS.map(a => `<option value="${esc(a.name)}">`).join("");
   const catOpts = CATS.map(c => `<option>${esc(c)}</option>`).join("");
   $("#txCat").innerHTML = '<option value="">Toutes catégories</option>' + catOpts;
@@ -851,11 +1226,13 @@ function heroHTML() {
     ${salaryHTML()}
     ${BAL.epargne != null ? `<div class="sub">Épargne : ${eur(BAL.epargne)}</div>` : ""}
     ${DEBTS && DEBTS.total_du > 0 ? `<div class="sub"><a href="#" data-goto="credits" style="text-decoration:none">On te doit : ${eur(DEBTS.total_du)}</a></div>` : ""}
+    ${SOLDE_BAS != null && (BAL.solde_courant < SOLDE_BAS || fc < SOLDE_BAS) ? `<div class="alertline">⚠︎ ${BAL.solde_courant < SOLDE_BAS ? "Ton solde est" : "Ta fin de mois passe"} sous ton seuil d'alerte (${eur(SOLDE_BAS)})</div>` : ""}
     <div class="fc"><span class="l">Prévu le ${frDate(FC.fin_du_mois)}${FC.jour_debut_mois > 1 ? ", salaire compris" : ""}${FC.veille ? `<br><span style="font-size:12px">la veille (${frDate(FC.veille.date)}) : ${eur(FC.veille.solde)}</span>` : ""}${FC.total_salaire_attendu || FC.salaire_recu_a_confirmer ? "<br><span style='font-size:12px'>avec le salaire : " + eur(FC.solde_prevu_avec_salaire) + "</span>" : ""}</span><a href="#" data-goto="solde" style="text-decoration:none"><b>${eur(fc)}</b></a></div>`;
 }
 
 /* ---------- Tableau de bord ---------- */
 async function renderDash() {
+  paintGreet();
   const [sum, hist, subs, merch] = await Promise.all([
     api("summary?month=" + current), api("history?months=12"), api("subscriptions"), api("merchants?month=" + current), loadBalance()]);
   $("#hero").innerHTML = heroHTML();
@@ -878,10 +1255,10 @@ async function renderDash() {
 
   const cmax = Math.max(1, ...sum.par_categorie.map(c => Math.max(c.depense, c.budget || 0)));
   $("#cats").innerHTML = sum.par_categorie.length ? sum.par_categorie.map(c => {
-    const over = c.budget && c.depense > c.budget;
+    const over = c.budget && c.depense > c.budget, warn = !over && c.budget && 100 * c.depense / c.budget >= SEUIL;
     return `<div class="cat"><span>${esc(c.categorie)}</span>
       <div class="track" title="${c.budget ? "Budget : " + eur(c.budget) : "Cliquer sur le montant pour fixer un budget"}">
-        <div class="fill ${over ? "over" : ""}" style="width:${(c.depense / cmax) * 100}%"></div>
+        <div class="fill ${over ? "over" : warn ? "warn" : ""}" style="width:${(c.depense / cmax) * 100}%"></div>
         ${c.budget ? `<div style="position:absolute;top:-2px;bottom:-2px;left:${(c.budget / cmax) * 100}%;width:2px;background:var(--text);opacity:.5"></div>` : ""}
       </div>
       <a href="#" class="amt ${over ? "neg" : ""}" data-cat="${esc(c.categorie)}" data-budget="${c.budget || ""}" style="color:inherit;text-decoration:none">${eur(c.depense)}${c.budget ? ` <small class="muted">/ ${eur(c.budget)}</small>` : ""}</a></div>`;
@@ -894,7 +1271,7 @@ async function renderDash() {
     renderDash();
   });
 
-  const up = FC.prelevements_a_venir.slice(0, 8);
+  const up = FC.prelevements_a_venir.slice(0, NB_PRLV);
   $("#upcoming").innerHTML = up.length ? up.map(x => `<div class="line"><span>${esc(x.nom)} <span class="muted" style="font-size:12px">· ${frDate(x.date)}${x.credit ? " · crédit" : x.type === "ponctuel" ? " · ponctuel" : x.type === "banque" ? " · annoncé par la banque" : ""}${x.en_retard ? " (en attente)" : ""}</span></span><span class="amt">−${eur(x.montant)}</span></div>`).join("")
     + [...FC.revenus_attendus, ...FC.salaire_attendu.map(x => ({ ...x, sal: 1 }))].map(x => `<div class="line"><span>${esc(x.nom)} <span class="muted" style="font-size:12px">· ${frDate(x.date)}${x.sal ? " · salaire, date variable, compté à son arrivée" : ""}</span></span><span class="amt pos">+${eur(x.montant)}</span></div>`).join("")
     : '<p class="muted">Rien de prévu d\'ici la fin du mois.</p>';
@@ -1299,6 +1676,451 @@ $("#debtForm").onsubmit = async e => {
   } catch (err) { toast(err.message); }
 };
 
+/* ---------- Paramètres ---------- */
+let THEME = "auto", SET = {}, SEUIL = 90, SOLDE_BAS = null, NB_PRLV = 8, PREF_SEC = "general";
+const THEME_RULES = [];  // règles « @media (prefers-color-scheme) » de la page, avec leur condition d'origine
+const ACCENTS = {  // [clair, sombre, fin du dégradé clair, fin du dégradé sombre]
+  violet: ["#7d4cdb", "#bf5af2", "#5b2fb3", "#8e3fd0"], rose: ["#d6336c", "#ff375f", "#a61e4d", "#d42452"],
+  orange: ["#c45c00", "#ff9f0a", "#9a4700", "#e07000"], vert: ["#1f8a3d", "#30d158", "#146c2e", "#1c9e45"],
+  graphite: ["#55555a", "#98989d", "#2e2e32", "#5c5c61"],
+};
+const isDark = () => THEME === "sombre" || (THEME === "auto" && window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches);
+function applyTheme(t) {
+  THEME = ["clair", "sombre"].includes(t) ? t : "auto";
+  if (!THEME_RULES.length) for (const sh of document.styleSheets) {
+    let rules; try { rules = sh.cssRules; } catch (e) { continue; }
+    for (const r of rules) if (r.media && /prefers-color-scheme/.test(r.media.mediaText)) THEME_RULES.push([r, r.media.mediaText]);
+  }
+  // Clair ou sombre forcé : on active ou coupe les règles « sombre » de la page, quel que soit le réglage de l'ordinateur
+  for (const [r, orig] of THEME_RULES) {
+    const dark = /dark/.test(orig);
+    r.media.mediaText = THEME === "auto" ? orig : ((THEME === "sombre") === dark ? "all" : "not all");
+  }
+  document.documentElement.style.colorScheme = THEME === "auto" ? "" : THEME === "sombre" ? "dark" : "light";
+  if (bridge() === "mac") window.webkit.messageHandlers.budget.postMessage("theme:" + THEME);  // fenêtre et barre de titre
+  store.set("theme", THEME);
+  applyAccent();
+}
+// Couleurs : conversions pour la couleur personnalisée (roue des couleurs)
+const hexToRgb = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+const toHex = rgb => "#" + rgb.map(x => Math.round(Math.max(0, Math.min(255, x))).toString(16).padStart(2, "0")).join("");
+function rgbToHsl([r, g, b]) {
+  r /= 255; g /= 255; b /= 255;
+  const mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2, d = mx - mn;
+  let h = 0, s = 0;
+  if (d) { s = d / (1 - Math.abs(2 * l - 1)); h = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4; h *= 60; if (h < 0) h += 360; }
+  return [h, s * 100, l * 100];
+}
+// Variante lisible d'une couleur libre : assez foncée en mode clair, assez claire en mode sombre (texte blanc dessus)
+function customAccent(hex, dark) {
+  const [h, s, l] = rgbToHsl(hexToRgb(hex)), sat = Math.min(s, 92);
+  const lc = dark ? Math.min(Math.max(l, 50), 64) : Math.min(Math.max(l, 30), 47);
+  return [`hsl(${h.toFixed(1)} ${sat.toFixed(1)}% ${lc.toFixed(1)}%)`, `hsl(${((h + 8) % 360).toFixed(1)} ${sat.toFixed(1)}% ${(lc - 13).toFixed(1)}%)`];
+}
+function applyAccent() {
+  const st = document.documentElement.style, custom = /^#[0-9a-f]{6}$/i.test(SET.accent || ""), a = ACCENTS[SET.accent];
+  if (!a && !custom) { ["--accent", "--accent-soft", "--bar", "--hero"].forEach(p => st.removeProperty(p)); return; }
+  const d = isDark();
+  const [c, e] = custom ? customAccent(SET.accent, d) : [d ? a[1] : a[0], d ? a[3] : a[2]];
+  st.setProperty("--accent", c); st.setProperty("--bar", c);
+  st.setProperty("--accent-soft", `color-mix(in srgb, ${c} ${d ? 18 : 11}%, transparent)`);
+  st.setProperty("--hero", `linear-gradient(135deg, ${c} 0%, ${e} 100%)`);
+}
+if (window.matchMedia) matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", applyAccent);
+function applyDisplay() {
+  const h = document.documentElement, s = SET;
+  h.classList.toggle("no-anim", s.animations === "non");
+  h.classList.toggle("no-glass", s.effet_verre === "non");
+  h.classList.toggle("no-red", s.depenses_rouge === "non");
+  h.classList.toggle("discret", s.mode_discret === "oui");
+  h.style.zoom = { petite: ".92", grande: "1.08" }[s.taille_texte] || "";
+  CENTS = s.centimes !== "non";
+  SEUIL = +s.seuil_alerte_budget || 90;
+  SOLDE_BAS = s.alerte_solde_bas === "" || s.alerte_solde_bas == null ? null : +s.alerte_solde_bas;
+  NB_PRLV = +s.prelevements_affiches || 8;
+  applyAccent();
+  if (bridge() === "mac") window.webkit.messageHandlers.budget.postMessage("autosync:" + (s.sync_auto || "6h"));
+  moveTabPill();
+}
+applyTheme(store.get("theme"));  // tout de suite (dernier choix connu), puis confirmé par les réglages enregistrés
+function paintGreet() {
+  const el = $("#greet"); if (!el) return;
+  const n = (SET.prenom || "").trim(), hr = new Date().getHours();
+  el.hidden = !n;
+  if (n) el.innerHTML = `${hr >= 18 || hr < 5 ? "Bonsoir" : "Bonjour"}, ${esc(n)}<small>${new Date().toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" })}</small>`;
+}
+async function saveSetting(key, value) {
+  const prev = SET[key];
+  SET[key] = value;
+  if (key === "theme") applyTheme(value); else applyDisplay();
+  try { await post("settings", { key, value }); }
+  catch (err) { SET[key] = prev; if (key === "theme") applyTheme(prev); else applyDisplay(); toast(err.message); paintPrefs(); return false; }
+  if (["centimes", "prelevements_affiches", "seuil_alerte_budget", "alerte_solde_bas", "prenom", "arret_abonnement_mois"].includes(key) && MONTHS.length) renderTab();
+  return true;
+}
+window.toggleDiscret = () => { saveSetting("mode_discret", SET.mode_discret === "oui" ? "non" : "oui"); toast(SET.mode_discret === "oui" ? "Mode discret activé" : "Mode discret désactivé"); paintPrefs(); };
+
+// --- Contrôles de la fenêtre
+function placeKnob(seg) {
+  const on = seg.querySelector("button.on");
+  let k = seg.querySelector(".knob");
+  if (!seg.classList.contains("segc")) return;
+  if (!k) { k = document.createElement("span"); k.className = "knob"; seg.prepend(k); }
+  if (!on) { k.style.width = "0"; return; }
+  k.style.left = on.offsetLeft + "px"; k.style.width = on.offsetWidth + "px";
+}
+function paintPrefs() {
+  $$("#settingsDialog [data-set]").forEach(el => {
+    const v = SET[el.dataset.set] ?? "";
+    if (el.type === "checkbox") el.checked = v === "oui"; else if (document.activeElement !== el) el.value = v;
+  });
+  $$("#settingsDialog [data-seg]").forEach(seg => {
+    seg.querySelectorAll("button").forEach(b => b.classList.toggle("on", b.dataset.v === (SET[seg.dataset.seg] ?? "")));
+    placeKnob(seg);
+  });
+  $("#seuilOut").textContent = (SET.seuil_alerte_budget || 90) + " %";
+  $("#rowBudgetQuotidien").hidden = $("#setEst").value !== "budget";
+  const custom = /^#[0-9a-f]{6}$/i.test(SET.accent || "");
+  $("#accentCustom").classList.toggle("on", custom);
+  if (custom) { wheelFromHex(SET.accent); $("#wheelRow").hidden = false; } else $("#wheelRow").hidden = true;
+}
+$$("#settingsDialog [data-set]").forEach(el => el.addEventListener(el.type === "range" ? "input" : "change", () => {
+  if (el.type === "range") { $("#seuilOut").textContent = el.value + " %"; clearTimeout(el._t); el._t = setTimeout(() => saveSetting(el.dataset.set, el.value), 250); return; }
+  saveSetting(el.dataset.set, el.type === "checkbox" ? (el.checked ? "oui" : "non") : el.value).then(paintPrefs);
+}));
+$$("#settingsDialog [data-seg]").forEach(seg => seg.querySelectorAll("button").forEach(b => b.addEventListener("click", () => {
+  seg.querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b)); placeKnob(seg);
+  saveSetting(seg.dataset.seg, b.dataset.v).then(paintPrefs);
+})));
+
+// --- Navigation à gauche : pastille liquide + changement de page animé
+// --- Roue des couleurs (couleur d'accentuation personnalisée)
+const WH = { h: 210, s: .85, v: 1, drawnV: null };
+function hsvToRgb(h, s, v) { const f = n => { const k = (n + h / 60) % 6; return 255 * (v - v * s * Math.max(0, Math.min(k, 4 - k, 1))); }; return [f(5), f(3), f(1)]; }
+function rgbToHsv([r, g, b]) {
+  r /= 255; g /= 255; b /= 255;
+  const mx = Math.max(r, g, b), d = mx - Math.min(r, g, b);
+  let h = 0;
+  if (d) { h = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4; h *= 60; if (h < 0) h += 360; }
+  return [h, mx ? d / mx : 0, mx];
+}
+function drawWheel() {
+  if (WH.drawnV === WH.v) return;
+  const c = $("#wheel"), ctx = c.getContext("2d"), N = c.width, R = N / 2, img = ctx.createImageData(N, N), px = img.data;
+  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+    const dx = x - R + .5, dy = y - R + .5, dist = Math.hypot(dx, dy) / R, i = (y * N + x) * 4;
+    if (dist > 1) { px[i + 3] = 0; continue; }
+    const [r, g, b] = hsvToRgb((Math.atan2(dy, dx) * 180 / Math.PI + 360) % 360, dist, WH.v);
+    px[i] = r; px[i + 1] = g; px[i + 2] = b; px[i + 3] = dist > .985 ? 255 * (1 - dist) / .015 : 255;  // bord adouci
+  }
+  ctx.putImageData(img, 0, 0);
+  WH.drawnV = WH.v;
+}
+function placeWheelDot() {
+  const R = 90, a = WH.h * Math.PI / 180, dot = $("#wheelDot");
+  dot.style.left = R + Math.cos(a) * WH.s * R + "px"; dot.style.top = R + Math.sin(a) * WH.s * R + "px";
+  dot.style.background = toHex(hsvToRgb(WH.h, WH.s, WH.v));
+}
+function wheelFromHex(hex) {
+  [WH.h, WH.s, WH.v] = rgbToHsv(hexToRgb(hex));
+  WH.v = Math.max(.35, WH.v);
+  $("#wheelV").value = Math.round(WH.v * 100);
+  if (document.activeElement !== $("#wheelHex")) $("#wheelHex").value = hex.toLowerCase();
+  drawWheel(); placeWheelDot();
+}
+let wheelSaveT = null;
+function wheelChanged(save = true) {
+  const hex = toHex(hsvToRgb(WH.h, WH.s, WH.v));
+  SET.accent = hex; applyAccent();
+  if (document.activeElement !== $("#wheelHex")) $("#wheelHex").value = hex;
+  placeWheelDot();
+  $("#accentCustom").classList.add("on");
+  $$("#settingsDialog [data-seg=accent] button").forEach(b => b.classList.remove("on"));
+  if (save) { clearTimeout(wheelSaveT); wheelSaveT = setTimeout(() => saveSetting("accent", hex), 280); }
+}
+function openWheel() {
+  const row = $("#wheelRow"), wasHidden = row.hidden;
+  if (!/^#[0-9a-f]{6}$/i.test(SET.accent || "")) {
+    // On part de la couleur actuelle (prédéfinie) pour ne pas surprendre
+    const cur = getComputedStyle(document.documentElement).getPropertyValue("--accent").trim();
+    const m = cur.match(/^#([0-9a-f]{6})$/i);
+    wheelFromHex(m ? "#" + m[1] : "#0a84ff"); wheelChanged();
+  }
+  row.hidden = false; drawWheel(); placeWheelDot();
+  if (wasHidden && !noAnim() && row.animate) row.animate([{ opacity: 0, transform: "translate3d(0, -8px, 0) scale(.98)" }, { opacity: 1, transform: "none" }],
+    { duration: 380, easing: "cubic-bezier(.2, .9, .25, 1)" });
+}
+$("#accentCustom").onclick = openWheel;
+$$("#settingsDialog [data-seg=accent] button").forEach(b => b.addEventListener("click", () => { $("#accentCustom").classList.remove("on"); $("#wheelRow").hidden = true; }));
+(() => {
+  const box = $("#wheelBox");
+  const pick = e => {
+    const r = $("#wheel").getBoundingClientRect(), dx = e.clientX - (r.left + r.width / 2), dy = e.clientY - (r.top + r.height / 2);
+    WH.h = (Math.atan2(dy, dx) * 180 / Math.PI + 360) % 360; WH.s = Math.min(1, Math.hypot(dx, dy) / (r.width / 2));
+    if (!box._raf) box._raf = requestAnimationFrame(() => { box._raf = 0; wheelChanged(); });  // une mise à jour par image
+  };
+  box.addEventListener("pointerdown", e => { box.classList.add("drag"); box.setPointerCapture(e.pointerId); pick(e); });
+  box.addEventListener("pointermove", e => { if (box.classList.contains("drag")) pick(e); });
+  box.addEventListener("pointerup", () => box.classList.remove("drag"));
+  box.addEventListener("pointercancel", () => box.classList.remove("drag"));
+  $("#wheelV").addEventListener("input", e => { WH.v = +e.target.value / 100; requestAnimationFrame(() => { drawWheel(); wheelChanged(); }); });
+  $("#wheelHex").addEventListener("input", e => {
+    let v = e.target.value.trim(); if (v && v[0] !== "#") v = "#" + v;
+    if (/^#[0-9a-f]{6}$/i.test(v)) { wheelFromHex(v); wheelChanged(); }
+  });
+})();
+
+// Tout passe par « transform » et « opacity » (calculés par la carte graphique) : pas de flou ni de changement
+// de mise en page pendant l'animation, pour rester fluide même avec l'effet de verre.
+function movePrefPill(instant) {
+  const on = $("#prefNav button.on"), p = $("#prefPill");
+  if (!on || !p) return;
+  const T = on.offsetTop, H = on.offsetHeight;
+  p.style.height = H + "px";
+  // Position réelle à l'instant présent (même au milieu d'un mouvement) : on repart de là, sans saut
+  let from = p._T;
+  const running = p.getAnimations().length > 0;
+  if (running) { try { const mx = new DOMMatrixReadOnly(getComputedStyle(p).transform); from = mx.m42 - (1 - mx.d) * H / 2; } catch (e) {} }
+  p.getAnimations().forEach(a => a.cancel());
+  p.style.transform = `translate3d(0, ${T}px, 0)`;
+  p._T = T;
+  if (instant || noAnim() || from === undefined || Math.abs(from - T) < 1 || !p.animate) return;
+  // Effet « goutte » : elle s'étire dans le sens du mouvement, s'écrase légèrement en arrivant, puis se reforme
+  const dist = T - from, sgn = Math.sign(dist), stretch = 1 + Math.min(Math.abs(dist) / H, 3) * .17;
+  p.animate([
+    { transform: `translate3d(0, ${from}px, 0) scale(1, 1)` },
+    { offset: .4, transform: `translate3d(0, ${from + dist * .55}px, 0) scale(.955, ${stretch})` },
+    { offset: .74, transform: `translate3d(0, ${T + sgn * 2.5}px, 0) scale(1.018, .92)` },
+    { transform: `translate3d(0, ${T}px, 0) scale(1, 1)` },
+  ], { duration: 600, easing: "cubic-bezier(.4, .12, .2, 1)" });
+}
+const PREF_ORDER = () => $$("#prefNav button").map(b => b.dataset.sec);
+function showPrefSection(id, instant) {
+  const prev = PREF_SEC;
+  PREF_SEC = id;
+  $$("#prefNav button").forEach(b => b.classList.toggle("on", b.dataset.sec === id));
+  movePrefPill(instant);
+  const sec = $(`.psec[data-sec="${id}"]`);
+  $("#prefTitle").textContent = sec.dataset.title;
+  $$(".psec").forEach(s => { s.classList.toggle("on", s === sec); s.getAnimations({ subtree: true }).forEach(a => a.cancel()); });
+  $("#prefBody").scrollTop = 0;
+  sec.querySelectorAll("[data-seg]").forEach(placeKnob);
+  if (noAnim() || instant || !sec.animate || prev === id) return;
+  // Le contenu arrive du bas si on descend dans la liste, du haut si on remonte
+  const o = PREF_ORDER(), dir = o.indexOf(id) >= o.indexOf(prev) ? 1 : -1;
+  const ease = "cubic-bezier(.2, .9, .25, 1)";
+  $("#prefTitle").animate([{ opacity: 0, transform: `translate3d(0, ${10 * dir}px, 0)` }, { opacity: 1, transform: "translate3d(0, 0, 0)" }],
+    { duration: 360, easing: ease });
+  [...sec.children].forEach((el, i) => el.animate([
+    { opacity: 0, transform: `translate3d(0, ${22 * dir}px, 0) scale(.985)` }, { opacity: 1, transform: "translate3d(0, 0, 0) scale(1)" }
+  ], { duration: 460, delay: Math.min(i, 9) * 26, easing: ease, fill: "backwards" }));
+}
+$$("#prefNav button").forEach(b => b.onclick = () => { $("#prefSearch").value = ""; endSearch(); showPrefSection(b.dataset.sec); });
+// --- Recherche dans tous les réglages
+const norm = s => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+function endSearch() { $("#prefBody").classList.remove("searching"); $("#prefNav").classList.remove("searching"); $$("#settingsDialog .pmiss").forEach(e => e.classList.remove("pmiss")); }
+$("#prefSearch").oninput = e => {
+  const q = norm(e.target.value.trim());
+  if (!q) { endSearch(); showPrefSection(PREF_SEC, true); return; }
+  $("#prefBody").classList.add("searching"); $("#prefNav").classList.add("searching");
+  $("#prefTitle").textContent = "Résultats";
+  $$(".psec").forEach(sec => {
+    let any = false;
+    sec.querySelectorAll(".pcard").forEach(card => {
+      let n = 0;
+      card.querySelectorAll(".prow").forEach(r => { const ok = norm(r.textContent).includes(q) || norm(sec.dataset.title).includes(q); r.classList.toggle("pmiss", !ok); n += ok; });
+      card.classList.toggle("pmiss", !n);
+      const h = card.previousElementSibling; if (h && h.tagName === "H4") h.classList.toggle("pmiss", !n);
+      any = any || n > 0;
+    });
+    sec.classList.toggle("has", any);
+  });
+};
+
+// --- Banques
+async function paintSettingsBanks() {
+  const box = $("#setBanks"), a = bankApi();
+  $("#setBankBtns").hidden = !a;
+  if (!a) { box.innerHTML = '<div class="prow"><div class="pl"><small>La connexion aux banques se fait depuis l\'appli Budget perso.</small></div></div>'; return; }
+  try {
+    const [st, bs] = await Promise.all([a.status(), api("bank-status").catch(() => ({}))]);
+    box.innerHTML = (st.connectees.length ? st.connectees.map(b => `<div class="prow"><div class="pl"><b>${esc(b.nom)} <span class="pill">connectée</span></b>
+        <small>${bs.derniere_synchro ? "Dernière synchronisation " + ago(bs.derniere_synchro) : "Pas encore synchronisée"}</small></div>
+        <div class="pc"><button type="button" class="danger" data-sdel="${esc(b.module)}" data-nom="${esc(b.nom)}">Déconnecter</button></div></div>`).join("")
+      : '<div class="prow"><div class="pl"><b>Aucune banque connectée</b><small>Connecte ta banque pour importer tes opérations automatiquement.</small></div></div>')
+      + (st.trousseau_ok === false ? '<div class="prow"><div class="pl"><small class="neg">Aucun trousseau sécurisé disponible : impossible d\'enregistrer des identifiants.</small></div></div>' : "");
+    $("#setSync").hidden = !st.connectees.length;
+    $$("[data-sdel]").forEach(btn => btn.onclick = async () => {
+      if (!confirm(`Déconnecter ${btn.dataset.nom} ?\n\nSes identifiants seront effacés du trousseau. Les opérations déjà importées sont conservées.`)) return;
+      await a.disconnect(btn.dataset.sdel); toast(`${btn.dataset.nom} déconnectée`); paintSettingsBanks();
+    });
+  } catch (e) { box.innerHTML = '<div class="prow"><div class="pl"><small>Impossible de lire l\'état des banques.</small></div></div>'; }
+}
+// --- À propos
+const KBD = () => { const m = /Mac/.test(navigator.platform) || bridge() === "mac" ? "⌘" : "Ctrl+";
+  return [["Onglets", `${m}1 à ${m}5`], ["Synchroniser", `${m}S`], ["Importer un relevé", `${m}O`], ["Paramètres", `${m},`],
+          ["Mode discret", m === "⌘" ? "⌘⇧D" : "Ctrl+Maj+D"], ...(bridge() === "mac" ? [["Mes banques", "⌘B"], ["Verrouiller", "⌘L"], ["Actualiser", "⌘R"]] : [])]; };
+async function paintAbout() {
+  const k = KBD(); $("#kbdList").innerHTML = k.map(([a, b]) => `<div class="prow"><span>${a}</span><kbd>${b}</kbd></div>`).join("");
+  $("#kbdDiscret").textContent = k.find(x => x[0] === "Mode discret")[1];
+  try {
+    const s = await api("about"), f = d => d ? new Date(d + "T12:00:00").toLocaleDateString("fr-FR", { month: "short", year: "numeric" }) : "—";
+    $("#aboutStats").innerHTML = [[s.operations.toLocaleString("fr-FR"), "opérations"], [s.comptes, "comptes"], [s.mensualites, "mensualités suivies"],
+      [s.credits, "crédits"], [`${f(s.premiere)}`, "première opération"], [s.taille_ko > 1024 ? (s.taille_ko / 1024).toFixed(1).replace(".", ",") + " Mo" : s.taille_ko + " Ko", "de données"]]
+      .map(([v, l]) => `<div><b>${v}</b><span>${l}</span></div>`).join("");
+  } catch (e) {}
+  let v = "";
+  try { const a = bankApi(); if (a && a.app_info) { const i = await a.app_info(); v = i && i.version ? "Version " + i.version : ""; } } catch (e) {}
+  $("#aboutVersion").textContent = (v ? v + " · " : "") + "tes données restent sur cet ordinateur";
+}
+// --- Préférences propres à l'appli Mac (Touch ID)
+async function paintMacPrefs() {
+  if (bridge() !== "mac") return;
+  try { const p = await bankApi().get_prefs(); $("#setLock").checked = !!p.lock; $("#setLockAfter").value = String(p.lockAfter || "0"); $("#setLockAfter").disabled = !p.lock; } catch (e) {}
+}
+$("#setLock").onchange = async e => {
+  const want = e.target.checked;
+  const r = await bankApi().set_lock(want).catch(() => null);
+  if (!r || !r.ok) { e.target.checked = !want; if (r && r.erreur) toast(r.erreur); return; }
+  toast(want ? "Budget perso sera verrouillé à l'ouverture" : "Verrouillage désactivé"); paintMacPrefs();
+};
+$("#setLockAfter").onchange = e => bankApi().set_pref("lockAfter", e.target.value);
+$("#setLockNow").onclick = () => { closeSettings(true); lockApp(); };
+
+async function openSettings(sec) {
+  const d = $("#settingsDialog");
+  try { SET = { ...SET, ...(await api("settings")) }; } catch (e) {}
+  $("#setCycle").value = SET.jour_debut_mois || CYCLE_DAY || 1;
+  $("#setEst").innerHTML = $("#estMode").innerHTML;
+  $("#setEst").value = SET.estimation_depenses || "aucune";
+  $("#setBq").value = SET.budget_quotidien_mensuel || "";
+  $$("#settingsDialog .mac-only").forEach(e => e.hidden = bridge() !== "mac");
+  $$("#settingsDialog .app-only").forEach(e => e.hidden = !bridge());
+  $("#prefSearch").value = ""; endSearch();
+  paintPrefs(); paintSettingsBanks(); paintAbout(); paintMacPrefs();
+  if (d.open) { showPrefSection(typeof sec === "string" ? sec : PREF_SEC); return; }
+  d.getAnimations({ subtree: true }).forEach(a => a.cancel());
+  d.classList.remove("closing");
+  d.showModal();
+  showPrefSection(typeof sec === "string" ? sec : PREF_SEC, true);
+  $$("#settingsDialog [data-seg]").forEach(placeKnob);
+  if (noAnim() || !d.animate) return;
+  // Ouverture « liquide » : une bulle de verre sort de l'engrenage, s'étire comme une goutte qui s'étale,
+  // puis prend la forme de la fenêtre en ondulant légèrement avant de se poser.
+  const w = d.querySelector(".prefs-win"), m = gearMorph(w);
+  w.animate([
+    { offset: 0, transform: m.bulle, borderRadius: "50%", opacity: 0, easing: "cubic-bezier(.3, .8, .4, 1)" },
+    { offset: .1, transform: m.bulle, borderRadius: "50%", opacity: 1, easing: "cubic-bezier(.35, .1, .25, 1)" },
+    { offset: .46, transform: `translate(${m.dx * .1}px, ${m.dy * .1}px) scale(1.035, .9)`, borderRadius: "70px", opacity: 1, easing: "cubic-bezier(.4, 0, .3, 1)" },
+    { offset: .7, transform: "scale(.985, 1.022)", borderRadius: "34px", opacity: 1, easing: "cubic-bezier(.4, 0, .4, 1)" },
+    { offset: .87, transform: "scale(1.005, .995)", borderRadius: "27px", opacity: 1, easing: "cubic-bezier(.4, 0, .4, 1)" },
+    { offset: 1, transform: "none", borderRadius: "26px", opacity: 1 },
+  ], { duration: 860 });
+  // L'engrenage tourne et « pousse » la bulle
+  const gs = $("#settingsBtn svg");
+  if (gs) gs.animate([{ transform: "rotate(0) scale(1)" }, { transform: "rotate(110deg) scale(.78)", offset: .4 }, { transform: "rotate(180deg) scale(1)" }],
+    { duration: 640, easing: "cubic-bezier(.3, .8, .3, 1)" });
+  // Le contenu apparaît quand la forme est presque posée, comme à travers du verre qui se nettoie
+  [$(".prefs-side"), $(".prefs-head"), ...$(".psec.on").children].forEach((el, i) => el.animate([
+    { opacity: 0, transform: "translateY(10px) scale(.985)", filter: "blur(8px)" }, { opacity: 1, transform: "none", filter: "blur(0)" }
+  ], { duration: 520, delay: 330 + Math.min(i, 9) * 32, easing: "cubic-bezier(.22, .9, .24, 1)", fill: "backwards" }));
+}
+// Transformation qui ramène la fenêtre sur l'engrenage, sous forme d'une petite bulle ronde
+function gearMorph(w) {
+  const g = $("#settingsBtn").getBoundingClientRect(), r = w.getBoundingClientRect(), size = Math.max(g.width, g.height) + 10;
+  const dx = g.left + g.width / 2 - (r.left + r.width / 2), dy = g.top + g.height / 2 - (r.top + r.height / 2);
+  return { dx, dy, bulle: `translate(${dx}px, ${dy}px) scale(${size / r.width}, ${size / r.height})` };
+}
+window.openSettings = openSettings;
+let setClosing = false;
+function closeSettings(instant) {
+  const d = $("#settingsDialog");
+  if (!d.open || setClosing) return;
+  if (instant || noAnim() || !d.animate) { d.close(); return; }
+  setClosing = true; d.classList.add("closing");
+  // Fermeture « liquide » : le contenu s'efface, la fenêtre se ramasse en goutte et rentre dans l'engrenage
+  const w = d.querySelector(".prefs-win"), m = gearMorph(w);
+  [$(".prefs-side"), $(".prefs-head"), $("#prefBody")].forEach(el => el.animate([{ opacity: 1, filter: "blur(0)" }, { opacity: 0, filter: "blur(6px)" }],
+    { duration: 170, easing: "ease-out", fill: "forwards" }));
+  const a = w.animate([
+    { offset: 0, transform: "none", borderRadius: "26px", opacity: 1, easing: "cubic-bezier(.3, 0, .5, 1)" },
+    { offset: .32, transform: "scale(.97, 1.03)", borderRadius: "42px", opacity: 1, easing: "cubic-bezier(.55, 0, .75, .35)" },
+    { offset: .8, transform: m.bulle, borderRadius: "50%", opacity: 1, easing: "ease-out" },
+    { offset: 1, transform: m.bulle, borderRadius: "50%", opacity: 0 },
+  ], { duration: 560, fill: "forwards" });
+  const done = () => { if (!setClosing) return; setClosing = false; d.close(); d.classList.remove("closing"); d.getAnimations({ subtree: true }).forEach(x => x.cancel()); };
+  a.onfinish = done; setTimeout(done, 760);
+}
+$("#settingsBtn").onclick = () => openSettings();
+$("#setClose").onclick = () => closeSettings();
+$("#settingsDialog").addEventListener("cancel", e => { e.preventDefault(); closeSettings(); });
+$("#settingsDialog").addEventListener("click", e => {
+  const r = $("#settingsDialog .prefs-win").getBoundingClientRect();
+  if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) closeSettings();
+});
+window.addEventListener("resize", () => { if ($("#settingsDialog").open) { movePrefPill(true); $$("#settingsDialog [data-seg]").forEach(placeKnob); } });
+$("#setSync").onclick = () => { closeSettings(true); toApp("sync"); };
+$("#setAddBank").onclick = () => { closeSettings(true); openBankDialog(); };
+$("#setImport").onclick = () => { closeSettings(true); $("#importCard").hidden = false; $("#file").click(); };
+$("#setFolder").onclick = () => toApp("openData");
+$$("[data-open]").forEach(b => b.onclick = () => { const a = bankApi(); if (bridge() === "mac") toApp("open:" + b.dataset.open); else if (a && a.open_url) a.open_url(b.dataset.open); });
+async function saveTo(kind) {
+  const a = bankApi(); if (!a || !a.choose_save_path) return;
+  const day = new Date().toISOString().slice(0, 10);
+  const path = await a.choose_save_path(kind === "export" ? `Budget perso - operations ${day}.csv` : `Budget perso - sauvegarde ${day}.db`);
+  if (!path) return;
+  try {
+    const r = await post(kind, { path });
+    toast(kind === "export" ? `${r.operations} opérations exportées dans « ${r.fichier} »` : `Sauvegarde créée : « ${r.fichier} »`);
+  } catch (err) { toast(err.message); }
+}
+$("#setExport").onclick = () => saveTo("export");
+$("#setBackup").onclick = () => saveTo("backup");
+$("#setReset").onclick = async () => {
+  if (!confirm("Remettre les réglages d'affichage (thème, couleur, texte, effets, montants) à leur valeur d'origine ?\nTes données ne sont pas touchées.")) return;
+  const keys = ["theme", "accent", "taille_texte", "animations", "effet_verre", "centimes", "depenses_rouge", "mode_discret", "prelevements_affiches"];
+  try { await post("settings/reset", { keys }); SET = { ...SET, ...(await api("settings")) }; applyTheme(SET.theme); applyDisplay(); paintPrefs(); toast("Affichage réinitialisé"); if (MONTHS.length) renderTab(); }
+  catch (err) { toast(err.message); }
+};
+$("#setCycle").onchange = async e => {
+  try { await post("settings", { key: "jour_debut_mois", value: e.target.value }); SET.jour_debut_mois = e.target.value; current = null; toast("Début du mois enregistré"); init(); }
+  catch (err) { toast(err.message); e.target.value = CYCLE_DAY; }
+};
+$("#setEst").onchange = async e => {
+  $("#rowBudgetQuotidien").hidden = e.target.value !== "budget";
+  try { await post("settings", { key: "estimation_depenses", value: e.target.value }); SET.estimation_depenses = e.target.value; toast("Enregistré"); if (tab === "solde" || tab === "dash") renderTab(); }
+  catch (err) { toast(err.message); }
+};
+$("#setBq").onchange = async e => {
+  try { await post("settings", { key: "budget_quotidien_mensuel", value: e.target.value || 0 }); toast("Enregistré"); if (tab === "solde" || tab === "dash") renderTab(); }
+  catch (err) { toast(err.message); }
+};
+
+// --- Verrouillage (Touch ID, appli Mac)
+function lockApp() {
+  if (bridge() !== "mac") return;
+  document.documentElement.classList.add("locked");
+  $("#lockScreen").hidden = false; $("#lockScreen").classList.remove("out");
+  setTimeout(unlockApp, 450);
+}
+window.lockApp = lockApp;
+let unlocking = false;
+async function unlockApp() {
+  if (unlocking) return; unlocking = true;
+  const r = await bankApi().unlock().catch(() => null);
+  unlocking = false;
+  if (!r || !r.ok) return;
+  const ls = $("#lockScreen");
+  ls.classList.add("out");
+  setTimeout(() => {
+    ls.hidden = true; ls.classList.remove("out"); document.documentElement.classList.remove("locked");
+    document.body.classList.remove("unlocking"); void document.body.offsetWidth; document.body.classList.add("unlocking");  // comme un iPhone qui se déverrouille
+    setTimeout(() => document.body.classList.remove("unlocking"), 1200);
+  }, noAnim() ? 0 : 400);
+}
+$("#unlockBtn").onclick = unlockApp;
+if (document.documentElement.classList.contains("locked")) lockApp();
+
 /* ---------- Budget ---------- */
 let BG = null;
 const dayBefore = d => new Date(new Date(d + "T12:00:00") - 864e5).toISOString().slice(0, 10);
@@ -1323,7 +2145,7 @@ async function renderBudget() {
       <td class="amt">${r.budget != null ? eur(r.budget) : '<span class="muted">—</span>'}</td>
       <td class="amt">${r.depense ? eur(r.depense) : '<span class="muted">0,00 €</span>'}</td>
       <td class="amt ${r.reste == null ? "" : r.reste >= 0 ? "pos" : "neg"}">${r.reste != null ? eur(r.reste) : ""}</td>
-      <td>${r.budget ? `<div class="track" title="${r.progression} % du budget"><div class="fill ${over ? "over" : ""}" style="width:${Math.min(100, r.progression)}%"></div></div>`
+      <td>${r.budget ? `<div class="track" title="${r.progression} % du budget"><div class="fill ${over ? "over" : r.progression >= SEUIL ? "warn" : ""}" style="width:${Math.min(100, r.progression)}%"></div></div>`
         : `<a href="#" class="muted" data-bgedit="${i}" style="font-size:12px">Fixer un budget</a>`}</td>
       <td style="white-space:nowrap;text-align:right"><button class="ghost" data-bgedit="${i}">Modifier</button> <button class="danger" data-bgdel="${i}">Supprimer</button></td></tr>`;
   }).join("") : '<tr><td colspan="6" class="muted">Aucune catégorie : ajoute-en une avec « + Ajouter une catégorie ».</td></tr>';
@@ -1362,7 +2184,7 @@ function openBudgetDialog(r, preset) {
 /* Fenêtre de détail d'une catégorie */
 let CD = null, cdName = null, cdSearchT = null;
 const shortDate = d => new Date(d + "T12:00:00").toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit" });
-const motionOK = () => !(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
+const motionOK = () => !noAnim();
 // Ligne du tableau de la catégorie affichée (pour y revenir à la fermeture)
 function cdRowEl() {
   const i = (BG ? BG.categories : []).findIndex(c => c.categorie === cdName);
@@ -1431,7 +2253,7 @@ async function loadCatDetail() {
   $("#cdStats").innerHTML = stat("Budget", CD.budget != null ? eur(CD.budget) : "—") + stat("Dépensé", eur(CD.depense), "neg")
     + (CD.reste != null ? stat("Reste", eur(CD.reste), CD.reste >= 0 ? "pos" : "neg") : "");
   $("#cdTrack").hidden = !CD.budget;
-  if (CD.budget) { $("#cdFill").style.width = Math.min(100, 100 * CD.depense / CD.budget) + "%"; $("#cdFill").classList.toggle("over", CD.depense > CD.budget); }
+  if (CD.budget) { $("#cdFill").style.width = Math.min(100, 100 * CD.depense / CD.budget) + "%"; $("#cdFill").classList.toggle("over", CD.depense > CD.budget); $("#cdFill").classList.toggle("warn", CD.depense <= CD.budget && 100 * CD.depense / CD.budget >= SEUIL); }
   // Dépenses de la catégorie
   const others = CATS.filter(c => c !== CD.categorie && c !== "Salaire");
   const allOps = $("#cdOps").dataset.all === "1", nOps = CD.operations.length;
@@ -1617,6 +2439,8 @@ document.addEventListener("keydown", e => {
   if (tabs[e.key]) { e.preventDefault(); showTab(tabs[e.key]); }
   else if (e.key.toLowerCase() === "s") { e.preventDefault(); toApp(bankConnected ? "sync" : "connect"); }
   else if (e.key.toLowerCase() === "o") { e.preventDefault(); $("#importCard").hidden = false; $("#file").click(); }
+  else if (e.key === ",") { e.preventDefault(); openSettings(); }
+  else if (e.shiftKey && e.key.toLowerCase() === "d") { e.preventDefault(); toggleDiscret(); }
 });
 
 document.body.classList.add("unlocking");

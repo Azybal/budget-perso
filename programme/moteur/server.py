@@ -104,6 +104,8 @@ class Handler(BaseHTTPRequestHandler):
                 data = core.subscription_list(conn)
             elif r == "settings":
                 data = {k: core.get_setting(conn, k) for k in core.SETTINGS_DEFAULTS}
+            elif r == "about":
+                data = core.about(conn)
             elif r == "coming":
                 data = core.list_coming(conn)
             elif r == "debts":
@@ -184,6 +186,12 @@ class Handler(BaseHTTPRequestHandler):
                     data = core.delete_planned(conn, b["id"])
                 elif r == "settings":
                     data = core.set_setting(conn, b["key"], b["value"])
+                elif r == "settings/reset":
+                    data = core.reset_settings(conn, b.get("keys") or [])
+                elif r == "export":
+                    data = core.export_csv(conn, b["path"])
+                elif r == "backup":
+                    data = core.backup_db(conn, b["path"])
                 elif r == "subscription/state":
                     data = core.set_subscription_state(conn, b["id"], b["status"], b.get("date"))
                 elif r == "loan/save":

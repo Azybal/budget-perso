@@ -30,15 +30,17 @@ calcule ton solde de fin de mois, suit tes abonnements et tes crédits, sans auc
 | **Solde prévisionnel** | Ce qu'il te restera à la fin du mois : solde actuel − prélèvements et crédits à venir + salaire et rentrées attendues (− dépenses du quotidien estimées, si tu le souhaites). Il affiche aussi la veille de ta paie, pour voir venir un découvert. |
 | **Opérations à venir** | Les paiements par carte pas encore débités et les prélèvements programmés, tels que ta banque les annonce. Ils sont pris en compte dans le prévisionnel. |
 | **Budget** | Un budget par catégorie (courses, transport, sorties…) qui se remplit tout seul avec tes dépenses : dépensé, reste, barre de progression. Ajoute, renomme ou supprime tes catégories. Clique sur une catégorie pour voir ses dépenses du mois, y ranger d'autres dépenses en un clic et choisir des mots-clés : les prochaines dépenses du même marchand y iront automatiquement. |
-| **Mensualités** | Ta liste d'abonnements, de charges fixes et de rentrées régulières : prochain prélèvement, dernier paiement constaté, hausse de prix. Tu peux modifier le prix ou la date, ou résilier. Un abonnement sans paiement depuis plus de 2 mois passe automatiquement en « arrêté ». |
+| **Mensualités** | Ta liste d'abonnements, de charges fixes et de rentrées régulières : prochain prélèvement, dernier paiement constaté, hausse de prix. Tu peux modifier le prix ou la date, ou résilier. Un abonnement sans paiement depuis plus de 2 mois (délai réglable) passe automatiquement en « arrêté ». |
 | **Crédits** | Tes crédits en cours : reste à rembourser, mensualités restantes, fin estimée. Les mensualités sont déduites automatiquement quand elles passent sur ton compte. |
 | **On me doit** | L'argent que des proches te doivent, déduit automatiquement quand ils te remboursent. |
 | **Dépenses prévues** | Une dépense ou une rentrée exceptionnelle à venir est comptée dans le mois concerné, puis marquée « payée » toute seule. |
 | **Ton mois à toi** | Ton mois peut commencer le jour de ta paie (par exemple du 25 au 24). Un salaire versé en avance avant un week-end reste dans le bon mois. |
 | **Plusieurs banques** | Connecte plusieurs banques : tous tes comptes sont réunis au même endroit. |
 | **Sans banque aussi** | Tu peux importer les relevés CSV ou OFX de n'importe quelle banque. |
+| **Alertes** | Une barre de budget passe en orange à l'approche de la limite, et le tableau de bord te prévient si ton solde ou ta fin de mois passe sous le seuil que tu choisis. |
+| **Paramètres** | Une fenêtre complète (bouton engrenage) : thème clair, sombre ou automatique, couleur d'accentuation au choix (6 couleurs ou une roue des couleurs), taille du texte, animations, effet de verre, centimes, mode discret qui floute les montants, synchronisation automatique, export de tes opérations en CSV, sauvegarde complète, et une recherche dans tous les réglages. |
 
-L'interface est soignée : style Apple, mode clair ou sombre selon ton système, et des animations douces.
+L'interface est soignée : style Apple, effet de verre, thème clair ou sombre, et des animations fluides.
 
 ---
 

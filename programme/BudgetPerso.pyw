@@ -188,6 +188,27 @@ class Api:
                 pass
         return False
 
+    # --- paramètres : enregistrer sous, liens, version
+    def choose_save_path(self, nom):
+        if not self._window:
+            return None
+        kind = webview.FileDialog.SAVE if hasattr(webview, "FileDialog") else webview.SAVE_DIALOG
+        r = self._window.create_file_dialog(kind, save_filename=str(nom or "Budget perso"))
+        if isinstance(r, (list, tuple)):
+            r = r[0] if r else None
+        return r or None
+
+    def open_url(self, quoi):
+        import webbrowser
+        depot = (mise_a_jour._conf() or {}).get("depot", "")
+        if depot and quoi in ("site", "code"):
+            compte, nom = depot.split("/", 1)
+            webbrowser.open(f"https://{compte.lower()}.github.io/{nom}/" if quoi == "site" else f"https://github.com/{depot}")
+        return True
+
+    def app_info(self):
+        return {"version": str(mise_a_jour.version_actuelle()), "systeme": sys.platform}
+
     # --- mises à jour
     def version(self):
         return mise_a_jour.version_actuelle()
@@ -302,8 +323,15 @@ def main():
             return
         first["done"] = True
         ls = derniere_synchro()
-        # Synchro automatique au lancement si la dernière date de plus de 6 heures
-        if banques_connectees() and (not ls or (datetime.now() - ls).total_seconds() > 6 * 3600):
+        # Synchro automatique au lancement, selon le réglage : jamais, à chaque ouverture, ou si la dernière date de plus de 6 h
+        try:
+            c = core.connect()
+            mode = core.get_setting(c, "sync_auto") or "6h"
+            c.close()
+        except Exception:  # noqa: BLE001
+            mode = "6h"
+        if mode != "off" and banques_connectees() and (
+                mode == "ouverture" or not ls or (datetime.now() - ls).total_seconds() > 6 * 3600):
             api._sync(auto=True)
         threading.Thread(target=api._updates_loop, daemon=True).start()
 

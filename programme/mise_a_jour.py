@@ -75,7 +75,7 @@ def chercher():
     if "mise-a-jour.zip" not in assets or "mise-a-jour.zip.sig" not in assets:
         return None
     return {"version": v, "zip": assets["mise-a-jour.zip"], "sig": assets["mise-a-jour.zip.sig"],
-            "notes": (info.get("body") or "").strip()}
+            "notes": (info.get("body") or "").split("———")[0].strip()}  # sans la note d'installation
 
 
 def telecharger_et_verifier(m):
